@@ -17,6 +17,7 @@ public class PortalLogic : MonoBehaviour
         Debug.LogWarning("WARN: If you are seeing this, greedling speed is still not being used");
 
         distanceFromOuterWall = transform.position.magnitude; // for now just using distance to camp
+        addDelay = Random.Range(2.5f, 5f);
 
         TimeTracker.OnNoonPassed += () => { defenceRange.enabled = true; };
     }
@@ -25,7 +26,7 @@ public class PortalLogic : MonoBehaviour
     float timeToSend; // could have these updated whenever a wall is built/destroyed/upgraded/repaired
     public bool sendingWave;
     float spawnDelay;
-    float addDelay = Random.Range(2.5f, 5f);
+    float addDelay;
     public List<Greed> greedQueue = new();
     int health;
 
@@ -84,5 +85,10 @@ public class PortalLogic : MonoBehaviour
         {
             addDelay = Random.Range(2.5f, 5f);
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        
     }
 }

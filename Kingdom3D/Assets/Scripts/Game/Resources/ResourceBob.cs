@@ -13,9 +13,9 @@ public class ResourceBob : MonoBehaviour
     void Update()
     {
         t += Time.deltaTime;
-        transform.SetPositionAndRotation(
-            bobHeight * Mathf.Sin(t * bobSpeed) * transform.up,
-            Quaternion.Euler(spinSpeed * t * transform.up));
+        transform.SetLocalPositionAndRotation(
+            bobHeight * (Mathf.Sin(t * bobSpeed)+1f) * transform.up,
+            Quaternion.AngleAxis(spinSpeed * t, transform.parent.up));
     }
 
     public void MatchSpin(ResourceBob bob)

@@ -140,9 +140,9 @@ public class Deer : CreatureBase
 
     protected override void Die()
     {
-        Instantiate(GameController.instance.coinObj, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
-        Instantiate(GameController.instance.coinObj, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
-        Instantiate(GameController.instance.coinObj, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        Instantiate(ObjectReferences.instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        Instantiate(ObjectReferences.instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        Instantiate(ObjectReferences.instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
         Destroy(gameObject);
     }
 

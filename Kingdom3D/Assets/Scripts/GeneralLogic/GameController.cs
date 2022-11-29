@@ -13,7 +13,6 @@ public class GameController : MonoBehaviour
 
     public LayerMask obstacleMask, wildlifeMask, enemyMask, villagerMask;
     public Transform player;
-    public GameObject coinObj;
 
     public List<Transform> coins = new List<Transform>();
     public List<PortalLogic> portals = new List<PortalLogic>();
@@ -35,5 +34,6 @@ public class GameController : MonoBehaviour
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
         new SafetyCheck();
+        new GreedTracker();
     }
 }

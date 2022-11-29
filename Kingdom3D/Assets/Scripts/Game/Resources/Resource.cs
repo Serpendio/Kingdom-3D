@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Resource : MonoBehaviour
 {
-    bool isCollectable;
+    public bool isCollectable;
+    public ResourceType resourceType;
     bool prioritisePlayer;
 
     float timeSinceDrop = 0;

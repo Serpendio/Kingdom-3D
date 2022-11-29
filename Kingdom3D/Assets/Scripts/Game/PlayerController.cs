@@ -47,45 +47,66 @@ public class PlayerController : MonoBehaviour
         print(context);
     }
 
+    bool paying;
     public void PayResource(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            paying = true;
+        }
+        if (context.performed)
+        {
+            paying = false;
+
+            // set to nearest interactable
+        }
+    }
+
+    public void DropCoin(InputAction.CallbackContext context)
     {
         if (context.performed) Instantiate(coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
     }
 
-    List<Interactable> nearbyInteractables = new();
+    void findNearestInteractable()
+    {
+        float closestDistance = float.MaxValue;
+        for (int i = 0; i < nearbyInteractables.Count; i++)
+        {
+            if (Vector3.Distance(transform.position, nearbyInteractables[i].transform.position) < closestDistance)
+                currentNearest = i;
+        }
+    }
+
+    readonly List<Interactable> nearbyInteractables = new();
     int currentNearest = -1;
     public void UpdateInteractables(bool beganOverlap, Interactable interactable)
     {
-        void findNearest() 
-        {
-            float closestDistance = float.MaxValue;
-            for (int i = 0; i < nearbyInteractables.Count; i++)
-            {
-                if (Vector3.Distance(transform.position, nearbyInteractables[i].transform.position) < closestDistance)
-                    currentNearest = i;
-            }
-        }
-
         if (beganOverlap)
         {
             nearbyInteractables.Add(interactable);
-            if (currentNearest != -1)
+
+            if (!paying)
             {
-                nearbyInteractables[currentNearest].SetCostVisibility(false);
+                if (currentNearest != -1)
+                {
+                    nearbyInteractables[currentNearest].SetCostVisibility(false);
+                }
+                findNearestInteractable();
+                nearbyInteractables[currentNearest].SetCostVisibility(true);
             }
-            findNearest();
-            nearbyInteractables[currentNearest].SetCostVisibility(true);
         }
         else
         {
             if (nearbyInteractables.IndexOf(interactable) == currentNearest)
             {
+                paying = false;
                 nearbyInteractables.Remove(interactable);
+
                 if (nearbyInteractables.Count == 0)
                     currentNearest = -1;
                 else
                 {
-                    findNearest();
+                    findNearestInteractable();
                     nearbyInteractables[currentNearest].SetCostVisibility(true);
                 }
             }
