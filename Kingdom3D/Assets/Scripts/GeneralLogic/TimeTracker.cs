@@ -6,7 +6,8 @@ public class TimeTracker : MonoBehaviour
     public static int DaysPast { get; private set; }
     public static float CurrentTime { get; private set; } = sunrise;
 
-    const float timeConversionRate = 360; // 1 day = 1440 mins = 4 irl mins, i.e. every minute = six in game hours
+    public const float dayLength = 1440;
+    public const float timeConversionRate = 360; // 1 day = 1440 mins = 4 irl mins, i.e. every minute = six in game hours
     public const float dawn = 210; // 3:30, day starts, bell can toll after last greed is defeated saving the game and letting subjects wander
                             // greedlings from portals will now retreat however all others must be defeated
     public const float sunrise = 330; // 5:30

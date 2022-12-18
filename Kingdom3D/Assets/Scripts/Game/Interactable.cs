@@ -18,7 +18,7 @@ public class Interactable : MonoBehaviour
 
     private void Update()
     {
-        transform.LookAt(GameController.instance.player.transform.position);
+        transform.LookAt(GameController.Instance.player.transform.position);
     }
 
     private void OnTriggerEnter(Collider other)

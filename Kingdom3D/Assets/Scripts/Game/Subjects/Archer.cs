@@ -4,10 +4,8 @@ using UnityEngine;
 using System.Linq;
 using DG.Tweening;
 
-public class Archer : MonoBehaviour
+public class Archer : SubjectBase
 {
-
-    [SerializeField, Min(0.1f)] float moveSpeed;
     [SerializeField, Min(0.1f)] float minDist;
     [SerializeField, Min(0.1f)] float maxDist;
     [SerializeField, Min(0.1f)] float spotRange;
@@ -15,19 +13,18 @@ public class Archer : MonoBehaviour
     // could make sure the attack range is < the maximum range from fire speed (errors would happen if archer fired at something it couldn't hit).
     //halving the fire speed (supposedly) quaters the max range
     
-    [SerializeField] GameObject coin;
     [SerializeField, Range(10, 60)] float maxFireSpeed = 30;
 
     bool isMoving;
-    Rigidbody rig;
     Transform bow;
     Bow bowScript;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         if (maxDist < minDist)
             maxDist = minDist;
-        rig = GetComponent<Rigidbody>();
 
         bow = transform.GetChild(0);
         bowScript = bow.GetComponent<Bow>();
@@ -54,12 +51,12 @@ public class Archer : MonoBehaviour
         float t;
         while (true)
         {
-            Collider nearbyTarget = Physics.OverlapSphere(transform.position, spotRange, GameController.instance.enemyMask) // all greed in range
+            Collider nearbyTarget = Physics.OverlapSphere(transform.position, spotRange, GameController.Instance.enemyMask) // all greed in range
                 .OrderBy(c => (c.transform.position - transform.position).sqrMagnitude) // order by dist sqrd which is faster due to no square root
                 .FirstOrDefault();
             
             if (nearbyTarget == null)
-                nearbyTarget = Physics.OverlapSphere(transform.position, spotRange, GameController.instance.wildlifeMask)
+                nearbyTarget = Physics.OverlapSphere(transform.position, spotRange, GameController.Instance.wildlifeMask)
                 .OrderBy(c => (c.transform.position - transform.position).sqrMagnitude)
                 .FirstOrDefault();
 
@@ -71,7 +68,7 @@ public class Archer : MonoBehaviour
                 float horizontalDist = new Vector2(pos1.x - pos2.x, pos1.z - pos2.z).magnitude;
                 float verticalDist = pos1.y - pos2.y;
 
-                Physics.Raycast(pos2, pos1 - pos2, out RaycastHit hitInfo, Mathf.Infinity, GameController.instance.obstacleMask | GameController.instance.wildlifeMask);
+                Physics.Raycast(pos2, pos1 - pos2, out RaycastHit hitInfo, Mathf.Infinity, GameController.Instance.obstacleMask | GameController.Instance.wildlifeMask);
                 bool directShot = hitInfo.collider.transform == nearbyTarget.transform;
 
                 if (horizontalDist <= attackRange)
@@ -133,25 +130,5 @@ public class Archer : MonoBehaviour
             }
             yield return new WaitForSeconds(t);
         }
-    }
-
-    public void Damage()
-    {
-        isMoving = false;
-        StopCoroutine(DoSomething());
-        Destroy(rig);
-        Destroy(GetComponent<Collider>());
-        transform.DOScaleY(0, 0.3f).OnComplete(Kill);
-    }
-
-    void Kill()
-    {
-        Instantiate(coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
-        Destroy(this);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawRay(transform.position, transform.forward);
     }
 }

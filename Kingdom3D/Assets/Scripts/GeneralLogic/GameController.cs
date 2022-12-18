@@ -9,7 +9,7 @@ public enum ResourceType
 
 public class GameController : MonoBehaviour
 {
-    public static GameController instance;
+    public static GameController Instance;
 
     public LayerMask obstacleMask, wildlifeMask, enemyMask, villagerMask;
     public Transform player;
@@ -22,9 +22,9 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
         else
         {

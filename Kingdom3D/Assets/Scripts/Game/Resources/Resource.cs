@@ -23,7 +23,7 @@ public class Resource : MonoBehaviour
     List<GameObject> overlappingVillagers = new();
     private void OnTriggerEnter(Collider other)
     {
-        if (StaticFunctions.IsLayerInMask(GameController.instance.villagerMask, other.gameObject.layer)) // sort this out, if villager, if prioritise player, if knight
+        if (StaticFunctions.IsLayerInMask(GameController.Instance.villagerMask, other.gameObject.layer)) // sort this out, if villager, if prioritise player, if knight
             overlappingVillagers.Add(other.gameObject);
 
     }

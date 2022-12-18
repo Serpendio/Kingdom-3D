@@ -30,7 +30,7 @@ public class Knight : CreatureBase
         }
     }
 
-    public override void Damage(float Damage, Vector3 source)
+    public override void Damage(float damage, Vector3 source)
     {
         throw new System.NotImplementedException();
     }

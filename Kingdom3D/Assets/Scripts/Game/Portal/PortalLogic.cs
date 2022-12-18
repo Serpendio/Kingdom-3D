@@ -12,7 +12,7 @@ public class PortalLogic : MonoBehaviour
 
     private void Awake()
     {
-        GameController.instance.portals.Add(this);
+        GameController.Instance.portals.Add(this);
 
         Debug.LogWarning("WARN: If you are seeing this, greedling speed is still not being used");
 
@@ -71,7 +71,7 @@ public class PortalLogic : MonoBehaviour
     readonly List<Transform> nearbySubjects = new();
     private void OnTriggerEnter(Collider other)
     {
-        if (StaticFunctions.IsLayerInMask(GameController.instance.villagerMask, other.gameObject.layer))
+        if (StaticFunctions.IsLayerInMask(GameController.Instance.villagerMask, other.gameObject.layer))
         {
             nearbySubjects.Add(other.transform);
         }

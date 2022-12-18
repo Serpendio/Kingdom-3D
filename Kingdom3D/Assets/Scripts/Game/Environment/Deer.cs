@@ -34,7 +34,7 @@ public class Deer : CreatureBase
         if (maxDist < minDist)
             maxDist = minDist;
         rig = GetComponent<Rigidbody>();
-        player = GameController.instance.player;
+        player = GameController.Instance.player;
     }
 
     private void Update()
@@ -140,9 +140,9 @@ public class Deer : CreatureBase
 
     protected override void Die()
     {
-        Instantiate(ObjectReferences.instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
-        Instantiate(ObjectReferences.instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
-        Instantiate(ObjectReferences.instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
         Destroy(gameObject);
     }
 

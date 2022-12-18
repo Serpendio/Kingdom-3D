@@ -28,9 +28,9 @@ public class Greedling : CreatureBase
             // retreat to nearest portal
     }
 
-    public override void Damage(float Damage, Vector3 source)
+    public override void Damage(float damage, Vector3 source)
     {
-        health -= Damage;
+        health -= damage;
         
         if (health <= 0)
         {

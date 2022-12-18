@@ -1,18 +1,51 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 
-public class Farmer : MonoBehaviour
+public class Farmer : SubjectBase
 {
-    // Start is called before the first frame update
-    void Start()
+    Field linkedField;
+    Farm linkedFarm;
+
+    protected override void Awake()
     {
-        
+        base.Awake();
+
+        SafetyCheck.OnKingdomSafe += StartFarming;
+        TimeTracker.OnSunsetPassed += EndFarming;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void StartFarming()
     {
-        
+        //if field is still valid
+            // move to farm center
+        //else
+            //look for new field
+
+        if (linkedField != null && linkedField.isValid)
+        {
+            
+        }
+        else
+        {
+            FindFarm();
+        }
+    }
+
+    private void EndFarming()
+    {
+        // move to town center or sheltered farm
+    }
+
+    void FindFarm()
+    {
+        foreach (Farm farm in LevelController.Instance.farms)
+        {
+            if (farm.FindEmptyField(ref linkedField))
+            {
+                break;
+            }
+        }
     }
 }
