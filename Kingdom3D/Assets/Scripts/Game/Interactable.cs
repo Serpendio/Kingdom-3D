@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,9 +7,9 @@ using UnityEngine.Events;
 public class Interactable : MonoBehaviour
 {
     public UnityEvent onPaidFor;
+    public UnityEvent onShowCost;
     public ResourceType resourceType;
     [Min(1)] public int cost = 1;
-    [SerializeField] GameObject coin, gem, coinPlaceholder, gemPlaceHolder;
 
     private void Awake()
     {
@@ -42,6 +43,8 @@ public class Interactable : MonoBehaviour
     {
         if (visible)
         {
+            onShowCost.Invoke();
+
             int y = 0;
             int x;
             int xMax = cost;
@@ -56,7 +59,7 @@ public class Interactable : MonoBehaviour
                 else
                     x = i;
                 
-                slots[i] = Instantiate(coinPlaceholder,
+                slots[i] = Instantiate(ObjectReferences.Instance.coinPlaceholder,
                                         StaticFunctions.Slerp(transform.GetChild(0).position - (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
                                         transform.GetChild(0).position + (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
                                         x / (xMax - 1f),

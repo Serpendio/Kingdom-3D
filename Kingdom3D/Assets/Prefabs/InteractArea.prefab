@@ -95,9 +95,10 @@ MonoBehaviour:
       m_Calls: []
   resourceType: 0
   cost: 3
-  coin: {fileID: 7906990589523409754, guid: e95d9e62dc516044c9e930ac3b307111, type: 3}
+  coin: {fileID: 5528692998189624420, guid: e070e22352686c847b765812c311812a, type: 3}
   gem: {fileID: 919132149155446097, guid: 17c4f05249980ff4eb9a00df0f89b634, type: 3}
   coinPlaceholder: {fileID: 6443721024419588932, guid: ffe7b806c9001bb41b0446d50e50931c,
     type: 3}
   gemPlaceHolder: {fileID: 7320561427444481913, guid: 9815703cbc780ee46a004190999abd4a,
     type: 3}
+  drawDebug: 0

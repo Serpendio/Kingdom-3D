@@ -5,11 +5,10 @@ public class AStarNode : IHeapItem<AStarNode>
     public int value;
     public int gridX;
     public int gridY;
-    public int lastDirection;
     public AStarNode parent;
 
-    public int gCost;
-    public int hCost;
+    public int gCost; // cost from start
+    public int hCost; // estimated cost to end
     int heapIndex;
 
     public AStarNode(int gridX, int gridY)

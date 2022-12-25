@@ -51,7 +51,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 80
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &3652396182410562390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65,10 +65,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 1.2
+  health: 0
   minDist: 7
   maxDist: 9
   spotDistance: 10
-  coin: {fileID: 7906990589523409754, guid: e95d9e62dc516044c9e930ac3b307111, type: 3}
 --- !u!136 &4257369327104718649
 CapsuleCollider:
   m_ObjectHideFlags: 0

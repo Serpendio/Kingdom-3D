@@ -7,11 +7,19 @@ public class ObjectReferences : MonoBehaviour
     public static ObjectReferences Instance;
 
     public GameObject vagrant, villager, archer, builder, farmer, knight;
+    [Tooltip("Order the same as roles")] public List<GameObject> toolsForSubjects;
 
-    public GameObject coin;
+    public GameObject coin, coinPlaceholder;
     public GameObject rabbit, deer;
     public GameObject greedling, floater, breeder;
-    [Tooltip("Order the same as roles")] public List<GameObject> toolsForSubjects;
+
+    public GameObject rock, tallGrass, tree;
+    public GameObject scaffolding;
+    public GameObject tower1, tower2, tower3, tower4;
+    public GameObject wall1, wall2, wall3, wall4;
+    public GameObject destroyedWall1, destroyedWall2, destroyedWall3, destroyedWall4;
+    public GameObject gate1, gate2, gate3, gate4;
+    public GameObject keep1, keep2, keep3, keep4;
 
     private void Awake()
     {

@@ -2,22 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Roles
-{
-    Villager,
-    Builder,
-    Archer,
-    Farmer,
-    Knight
-}
+
 
 public class SubjectBase : CreatureBase
 {
+    public enum Roles
+    {
+        Villager,
+        Builder,
+        Archer,
+        Farmer,
+        Knight
+    }
+
     const float knockbackForce = 500;
 
     protected Rigidbody rig;
     protected float stateTime;
-    protected Transform target;
+    public Transform target;
 
     public Roles role;
     int coins;
