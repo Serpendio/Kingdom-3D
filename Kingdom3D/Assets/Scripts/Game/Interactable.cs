@@ -7,7 +7,6 @@ using UnityEngine.Events;
 public class Interactable : MonoBehaviour
 {
     public UnityEvent onPaidFor;
-    public UnityEvent onShowCost;
     public ResourceType resourceType;
     [Min(1)] public int cost = 1;
 
@@ -43,8 +42,6 @@ public class Interactable : MonoBehaviour
     {
         if (visible)
         {
-            onShowCost.Invoke();
-
             int y = 0;
             int x;
             int xMax = cost;

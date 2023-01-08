@@ -14,12 +14,14 @@ public class BuildingBase : MonoBehaviour
     private Builder[] builders;
     private Scaffolding scaffolding;
 
+    private float checkTime;
+
     public virtual void StartUpgrade()
     {
         isUpgrading = true;
 
-        if (!ignoreScaffolding)
-            scaffolding = Instantiate(ObjectReferences.Instance.scaffolding, transform).GetComponent<Scaffolding>();
+        //if (!ignoreScaffolding)
+        //    scaffolding = Instantiate(ObjectReferences.Instance.scaffolding, transform).GetComponent<Scaffolding>();
     }
 
     public virtual void IncrementUpgrade()
@@ -59,6 +61,8 @@ public class BuildingBase : MonoBehaviour
 
     protected virtual void Start()
     {
+        builders = new Builder[numBuilders];
+        checkTime = 3f;
         StartUpgrade();
     }
 
@@ -71,15 +75,24 @@ public class BuildingBase : MonoBehaviour
 
         if (isUpgrading)
         {
-            for (int i = 0; i < numBuilders; i++)
+            if (checkTime <= 0)
             {
-                if (builders[i] == null)
+
+                for (int i = 0; i < numBuilders; i++)
                 {
-                    if (GetNearestAvailableBuilder(transform.position, ref builders[i]))
-                        builders[i].targetBuilding = this;
-                    else
-                        break;
+                    if (builders[i] == null)
+                    {
+                        if (GetNearestAvailableBuilder(transform.position, ref builders[i]))
+                            builders[i].targetBuilding = this;
+                        else
+                            break;
+                    }
                 }
+                checkTime = 3f;
+            }
+            else
+            {
+                checkTime -= Time.deltaTime;
             }
         }
     }
