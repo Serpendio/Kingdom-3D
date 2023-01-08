@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour
     public void Sprint(InputAction.CallbackContext context)
     {
         isSprinting = context.performed;
-        print(context);
+        //print(context);
     }
 
     bool paying;

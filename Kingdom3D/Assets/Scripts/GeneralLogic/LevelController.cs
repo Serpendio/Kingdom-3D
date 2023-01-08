@@ -15,6 +15,7 @@ public class LevelController : MonoBehaviour
     public Transform buildings;
     public List<Farm> farms;
     public List<PortalLogic> portals = new();
+    public List<Zone> zones;
 
     private void Awake()
     {
