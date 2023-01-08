@@ -21,14 +21,19 @@ public static class StaticFunctions
     }
 
     /// <summary>
-    /// Returns the top-down displacement between two transforms
+    /// Returns the top-down displacement between two coordinates
     /// </summary>
-    /// <param name="from">Transform a</param>
-    /// <param name="to">Transform b</param>
+    /// <param name="from">Vector3 a</param>
+    /// <param name="to">Vector3 b</param>
     /// <returns>Returns (x-dist, z-dist)</returns>
-    public static Vector3 BirdsEyeDisplacement(Transform from, Transform to)
+    public static Vector3 BirdsEyeDisplacement(Vector3 from, Vector3 to)
     {
-        return new Vector3(from.position.x - to.position.x, 0, from.position.z - to.position.z);
+        return new Vector3(from.x - to.x, 0, from.z - to.z);
+    }
+
+    public static Vector3 BirdsEyeDisplacement(Vector3 to)
+    {
+        return new Vector3(to.x, 0, to.z);
     }
 
     /*public static Vector3 Direction2D(Vector3 from, Vector3 to)
