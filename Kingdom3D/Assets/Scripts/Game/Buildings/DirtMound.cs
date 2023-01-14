@@ -4,7 +4,14 @@ using UnityEngine;
 
 public class DirtMound : MonoBehaviour
 {
-    public int numMounds = 3;
+    public Zone[] linkedZones; // index 0 is the zone this builds around
+
+    public void BuildZone()
+    {
+        linkedZones[0].BuildWalls();
+    }
+
+    /*public int numMounds = 3;
     public float rotation;
     public float radius;
     public float wallWidth = 2;
@@ -30,10 +37,9 @@ public class DirtMound : MonoBehaviour
                 Vector3.zero,
                 new Vector3(wallWidth, 1, 1) * widthMultiplier
                 );
-            /*if (o == wallsPerMound / 2)
+            if (o == wallsPerMound / 2)
                 Instantiate(ObjectReferences.Instance.wall1, )
             else
-            */
         }
-    }
+    }*/
 }

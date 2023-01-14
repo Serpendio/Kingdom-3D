@@ -12,6 +12,7 @@ public class IslandGenerator : MonoBehaviour
     [SerializeField, Min(0)] float maxZoneRadius = 30;
 
     [Header("Set Variables")]
+    public const float wallWidth = 2;
     [SerializeField] float[] presetRingRadii = new float[] { 20, 40 };
     [SerializeField] int[] presetNumRingZones = new int[] { 2, 3 };
 
@@ -98,6 +99,10 @@ public class IslandGenerator : MonoBehaviour
             allAngles.Add(angles);
         }
 
+        // final non-buildable layer enclosing everything
+        radii.Add(islandRadius - radiusUsed);
+        allAngles.Add(new List<float>() { 0, PI2 });
+
         for (int r = 0; r < radii.Count - 1; r++)
         {
             for (int a = 0; a < allAngles[r].Count - 1; a++)
@@ -110,6 +115,12 @@ public class IslandGenerator : MonoBehaviour
             }
         }
 
+        for (int i = 0; i < allAngles[0].Count; i++)
+        {
+            zones[i].isCentralZone = true;
+        }
+
+        
         // terribly unoptimised
         for (int i = 0; i < zones.Count; i++)
         {
@@ -117,23 +128,73 @@ public class IslandGenerator : MonoBehaviour
             {
                 if (i == o) continue;
 
-                if (ZoneYBordersX(zones[i], zones[o]))
+                if (ZoneYBordersX(zones[i], zones[o], out Directions direction))
                 {
                     zones[i].neighbouringZones.Add(zones[o]);
+                    zones[i].gateDirections.Add(direction);
                 }
             }
+
+            zones[i].gates = new Gate[zones[i].neighbouringZones.Count];
         }
+
+        for (int i = 0; i < zones.Count; i++)
+        {
+            zones[i].PlaceMounds();
+        }
+
 
         //print(string.Format("Created {0} zones", zones.Count));
         LevelController.Instance.zones = zones;
     }
 
-    static bool ZoneYBordersX(Zone x, Zone y)
+    static bool ZoneYBordersX(Zone x, Zone y, out Directions direction)
     {
-        return (x.topLeft.r == y.bottomRight.r ||   // (y is in the ring above x    or
-            x.bottomRight.r == y.topLeft.r ||       //  y is in the same ring as x  or 
-            x.topLeft.r == y.topLeft.r) &&          //  y is in the ring below x)   and
-            ((y.topLeft.theta >= x.topLeft.theta && y.bottomRight.theta <= x.topLeft.theta) ||         // x left side is between two y sides    or
-                y.topLeft.theta >= x.bottomRight.theta && y.bottomRight.theta <= x.bottomRight.theta); // x right side is between two y sides
+        // if bsp is used, will need three more but with theta and r flipped (with slight adjustments), will need to change Zone.GetGatePos too
+
+        if (Mathf.Approximately(x.topLeft.r, y.bottomRight.r)) // is row above
+        {
+            direction = Directions.Up;
+            return (x.topLeft.theta - y.bottomRight.theta > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 1.5f) || // gap > 1.5 * wallWidth left or
+                    y.topLeft.theta - x.bottomRight.theta > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 1.5f));   // gap > 1.5 * wallWidth right
+        }
+        else if (Mathf.Approximately(x.bottomRight.r, y.topLeft.r))
+        {
+            direction = Directions.Down;
+            return (x.topLeft.theta - y.bottomRight.theta > PolarMaths.SectorAngle(x.bottomRight.r, wallWidth * 1.5f) || // gap > 1.5 * wallWidth left or
+                    y.topLeft.theta - x.bottomRight.theta > PolarMaths.SectorAngle(x.bottomRight.r, wallWidth * 1.5f));   // gap > 1.5 * wallWidth right
+        }
+        else if (x.topLeft.r == y.topLeft.r)
+        {
+            if (Mathf.Approximately(x.topLeft.theta - y.bottomRight.theta, 0))
+            {
+                direction = Directions.Left;
+                return true;
+            }
+            else if (Mathf.Approximately(y.topLeft.theta - x.bottomRight.theta, 0))
+            {
+                direction = Directions.Right;
+                return true;
+            }
+        }
+        
+        direction = Directions.Down;
+        return false;
+
+        /*return (
+            Mathf.Approximately(x.topLeft.r, y.bottomRight.r) && // row above and
+            (x.topLeft.theta - y.bottomRight.theta > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 1.5f) || // there is a gap of more than 1.5 * wallWidth to the left or
+            y.topLeft.theta - x.bottomRight.theta > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 1.5f)) // there is a gap of more than 1.5 * wallWidth to the right
+            || // or...
+            Mathf.Approximately(x.bottomRight.r, y.topLeft.r) && // row below and
+            (x.topLeft.theta - y.bottomRight.theta > PolarMaths.SectorAngle(x.bottomRight.r, wallWidth * 1.5f) || // there is a gap of more than 1.5 * wallWidth to the left
+            y.topLeft.theta - x.bottomRight.theta > PolarMaths.SectorAngle(x.bottomRight.r, wallWidth * 1.5f)) // there is a gap of more than 1.5 * wallWidth to the right
+            || // or...
+            x.topLeft.r == y.topLeft.r && // same row and
+            (Mathf.Approximately(x.topLeft.theta - y.bottomRight.theta, 0) || // there is no gap left or
+            Mathf.Approximately(y.topLeft.theta - x.bottomRight.theta, 0)) // there is no gap right
+
+            
+        );*/
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System;
 
 public class LevelController : MonoBehaviour
@@ -13,6 +12,7 @@ public class LevelController : MonoBehaviour
     public Transform tools;
     public Transform greed;
     public Transform buildings;
+    public Transform WallsNGates;
     public List<Farm> farms;
     public List<PortalLogic> portals = new();
     public List<Zone> zones;

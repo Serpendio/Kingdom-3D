@@ -2,32 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Gate : BuildingBase
+public enum WallLevels
 {
-    public enum Levels
-    {
-        level1,
-        level2,
-        level3,
-        level4
-    }
+    level1,
+    level2,
+    level3,
+    level4
+}
+
+public class Gate : MonoBehaviour
+{
+    [SerializeField] private Animator anim;
 
     public List<GameObject> connectedWalls;
-    public Zone[] connectedZones = new Zone[2];
+    public Zone[] connectedZones = new Zone[2]; // if it's a ring gate, zone[0] will be the zone this gate upgrades
     public bool isDestroyed;
-    public Levels level;
+    public WallLevels level;
 
-    public void UpgradeWalls()
+    public void Start()
+    {
+        SafetyCheck.OnKingdomSafe += OpenGate;
+    }
+
+    /// <summary>
+    /// Repairs or upgrades all connectedWalls depending on if the gate is Destroyed
+    /// </summary>
+    public void UpgradeWalls() // also repairs
     {
         var wallToSpawn =
             isDestroyed ?
-                (level == Levels.level1 ? ObjectReferences.Instance.wall1 :
-                level == Levels.level2 ? ObjectReferences.Instance.wall2 :
-                level == Levels.level3 ? ObjectReferences.Instance.wall3 :
+                (level == WallLevels.level1 ? ObjectReferences.Instance.wall1 :
+                level == WallLevels.level2 ? ObjectReferences.Instance.wall2 :
+                level == WallLevels.level3 ? ObjectReferences.Instance.wall3 :
                 ObjectReferences.Instance.wall4)
             :
-                (level == Levels.level1 ? ObjectReferences.Instance.wall2 :
-                level == Levels.level2 ? ObjectReferences.Instance.wall3 :
+                (level == WallLevels.level1 ? ObjectReferences.Instance.wall2 :
+                level == WallLevels.level2 ? ObjectReferences.Instance.wall3 :
                 ObjectReferences.Instance.wall4);
 
         GameObject temp;
@@ -43,32 +53,45 @@ public class Gate : BuildingBase
 
         wallToSpawn =
             isDestroyed ?
-                (level == Levels.level1 ? ObjectReferences.Instance.gate1 :
-                level == Levels.level2 ? ObjectReferences.Instance.gate2 :
-                level == Levels.level3 ? ObjectReferences.Instance.gate3 :
+                (level == WallLevels.level1 ? ObjectReferences.Instance.gate1 :
+                level == WallLevels.level2 ? ObjectReferences.Instance.gate2 :
+                level == WallLevels.level3 ? ObjectReferences.Instance.gate3 :
                 ObjectReferences.Instance.gate4)
             :
-                (level == Levels.level1 ? ObjectReferences.Instance.gate2 :
-                level == Levels.level2 ? ObjectReferences.Instance.gate3 :
+                (level == WallLevels.level1 ? ObjectReferences.Instance.gate2 :
+                level == WallLevels.level2 ? ObjectReferences.Instance.gate3 :
                 ObjectReferences.Instance.gate4);
 
         temp = Instantiate(wallToSpawn, transform.position, transform.rotation, transform.parent);
         temp.GetComponent<Gate>().connectedWalls = connectedWalls;
 
         // if kingdom is safe, temp.GetComponent<Gate>().OpenGate();
+        if (SafetyCheck.isKingdomSafe)
+            temp.GetComponent<Gate>().OpenGate();
 
         Destroy(gameObject);
+    }
+
+    public void UpgradeZone()
+    {
+        connectedZones[0].UpgradeWalls(level + 1);
     }
 
     public void OpenGate()
     {
         // play open anim
+        anim.Play("Open");
+
         // update astar & collider
+        GetComponent<Collider>().enabled = false;
     }
 
     public void CloseGate()
     {
         // play close anim
+        anim.Play("Closed");
+
         // update astar & collider
+        GetComponent<Collider>().enabled = true;
     }
 }

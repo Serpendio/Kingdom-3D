@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Wall : BuildingBase
+public class Wall : MonoBehaviour
 {
     public Gate parent;
 
-    protected override void Start()
+    private void Start()
     {
         // update astar
     }
