@@ -10,7 +10,15 @@ public enum WallLevels
     level4
 }
 
-public class Gate : MonoBehaviour
+public enum WallUpgradeHits
+{
+    level1 = 8,
+    level2 = 20,
+    level3 = 64,
+    level4 = 80,
+}
+
+public class Gate : MonoBehaviour, IBuilding
 {
     [SerializeField] private Animator anim;
 
@@ -18,6 +26,7 @@ public class Gate : MonoBehaviour
     public Zone[] connectedZones = new Zone[2]; // if it's a ring gate, zone[0] will be the zone this gate upgrades
     public bool isDestroyed;
     public WallLevels level;
+    [SerializeField] int health;
 
     public void Start()
     {
@@ -89,9 +98,19 @@ public class Gate : MonoBehaviour
     public void CloseGate()
     {
         // play close anim
-        anim.Play("Closed");
+        anim.Play("Close");
 
         // update astar & collider
         GetComponent<Collider>().enabled = true;
+    }
+
+    public void Damage()
+    {
+
+    }
+
+    public void SyncHealth()
+    {
+
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ArcherTower : BuildingBase
+public class ArcherTower : MonoBehaviour, IBuilding
 {
     public enum Levels
     {
@@ -17,19 +17,17 @@ public class ArcherTower : BuildingBase
     public Levels level;
     [SerializeField] Transform[] archerPositions;
     Archer[] archers;
+    private float checkTime;
 
-    protected override void Start()
+    protected void Start()
     {
-        base.Start();
-
         archers = new Archer[archerPositions.Length];
+        checkTime = 1f;
     }
 
-    protected override void Update()
+    protected void Update()
     {
-        base.Update();
-
-        if (!isUpgrading)
+        if (checkTime <= 0)
         {
             for (int i = 0; i < archers.Length; i++)
             {
@@ -41,7 +39,11 @@ public class ArcherTower : BuildingBase
                         break;
                 }
             }
+
+            checkTime = 3f;
         }
+        else
+            checkTime -= Time.deltaTime;
     }
 
     public Transform GainArcher(Archer archer)

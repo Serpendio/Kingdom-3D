@@ -19,6 +19,7 @@ public class Builder : SubjectBase
 
     public Transform targetBuilding;
     public Vector3 targetPos;
+    public BuildJob job;
     public Vector3[] path;
     private float reassessTime;
 
@@ -34,6 +35,14 @@ public class Builder : SubjectBase
         switch (CurrentState)
         {
             case States.Idle:
+                if (reassessTime <= 0)
+                {
+                    if (LevelController.GetJob(out job) || Random.Range(0, 5) == 0) // 20% chance to start roaming
+                    {
+                        CurrentState = States.Roaming;
+                    }
+                    reassessTime = 2f;
+                }
                 break;
             case States.Roaming:
                 break;

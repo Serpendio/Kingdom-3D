@@ -19,6 +19,8 @@ public class LevelController : MonoBehaviour
     public static List<Farm> farms;
     public static List<PortalLogic> portals = new();
     public static Zone[] zones;
+    public static Heap<BuildJob> Jobs { get; private set; } = new(256); // surely you're not going to have more than 256 jobs going?
+    public static List<Polar> outerWallPositions = new();
 
     private void Awake()
     {
@@ -33,6 +35,11 @@ public class LevelController : MonoBehaviour
         }
     }
 
+    public void UpdatePortalTimes() // called at start, and when a wall is destroyed or created (/ upgraded?)
+    {
+        
+    }
+
     public float GetDistanceToOuterWall(Vector3 position)
     {
         //perhaps consider outer wall as a bezier or nurbs circle?
@@ -42,5 +49,24 @@ public class LevelController : MonoBehaviour
         return position.magnitude;
         
         // time to move = time to arrive - (dist from wall / moveSpeed)     // could perhaps round to nearest hour
+    }
+
+    public static bool GetJob(out BuildJob job)
+    {
+        if (Jobs.Count > 0)
+        {
+            job = Jobs[0];
+            return true;
+        }
+        else 
+        {
+            job = null;
+            return false;
+        }
+    }
+
+    public static void AddJob(BuildJob job)
+    {
+        Jobs.Add(job);
     }
 }
