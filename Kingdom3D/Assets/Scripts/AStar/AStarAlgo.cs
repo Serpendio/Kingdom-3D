@@ -13,7 +13,18 @@ public class AStarAlgo : MonoBehaviour
         instance = this;
     }
 
-    public List<Vector2Int> FindInitialCorridor(Vector2Int startPos, Vector2Int endPos)
+    public Vector3[] FindPath(Vector3 startPos, Vector3 endPos)
+    {
+        var ogPath = FindPath(grid.WorldToGrid(startPos), grid.WorldToGrid(endPos));
+        Vector3[] path = new Vector3[ogPath.Count];
+        for (int i = 0; i < ogPath.Count; i++)
+        {
+            path[i] = grid.GridToWorld(ogPath[i]);
+        }
+        return path;
+    }
+    
+    public List<Vector2Int> FindPath(Vector2Int startPos, Vector2Int endPos)
     {
         AStarNode startNode = grid.GetNodeAt(startPos);
         AStarNode targetNode = grid.GetNodeAt(endPos);

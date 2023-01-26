@@ -33,9 +33,21 @@ public class Heap<T> where T : IHeapItem<T>
         return firstItem;
     }
 
+    public void Remove(T item)
+    {
+        int index = item.HeapIndex;
+        if (Contains(item))
+        {
+            Swap(item, items[currentItemCount - 1]);
+            currentItemCount--;
+            UpdateItem(items[index]);
+        }
+    }
+
     public void UpdateItem(T item)
     {
         SortUp(item);
+        SortDown(item);
     }
 
     public int Count
@@ -115,6 +127,11 @@ public class Heap<T> where T : IHeapItem<T>
         items[itemA.HeapIndex] = itemB;
         items[itemB.HeapIndex] = itemA;
         (itemB.HeapIndex, itemA.HeapIndex) = (itemA.HeapIndex, itemB.HeapIndex);
+    }
+
+    public T this[int index]
+    {
+        get => items[index];
     }
 }
 

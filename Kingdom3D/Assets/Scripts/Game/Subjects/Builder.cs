@@ -8,6 +8,7 @@ public class Builder : SubjectBase
     {
         Idle,
         Roaming,
+        Running,
         Building,
         Locked // catapult and ballista
     }
@@ -16,7 +17,10 @@ public class Builder : SubjectBase
     private States _currentState;
     States CurrentState { get { return _currentState; } set { ExitState(); _currentState = value; EnterState(); } }
 
-    public BuildingBase targetBuilding;
+    public Transform targetBuilding;
+    public Vector3 targetPos;
+    public Vector3[] path;
+    private float reassessTime;
 
     protected override void Awake()
     {
@@ -27,21 +31,48 @@ public class Builder : SubjectBase
 
     void Update()
     {
-
         switch (CurrentState)
         {
             case States.Idle:
                 break;
             case States.Roaming:
                 break;
+            case States.Running:
+                break;
             default:
                 break;
+        }
+
+        reassessTime -= Time.deltaTime;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (StaticFunctions.IsLayerInMask(GameController.Instance.enemyMask, other.gameObject.layer))
+        {
+            CurrentState = States.Running;
         }
     }
 
     void EnterState()
     {
-
+        switch (CurrentState)
+        {
+            case States.Idle:
+                targetBuilding = null;
+                path = null;
+                break;
+            case States.Roaming:
+                if (targetBuilding == null)
+                {
+                    path = AStarAlgo.instance.FindPath(transform.position, transform.position);
+                }
+                break;
+            case States.Running:
+                break;
+            default:
+                break;
+        }
     }
 
     void ExitState()
