@@ -17,6 +17,7 @@ public class ObjectReferences : MonoBehaviour
     public GameObject scaffolding;
     public GameObject tower1, tower2, tower3, tower4;
     public GameObject wall1, wall2, wall3, wall4;
+    public GameObject sideWall1, sideWall2, sideWall3, sideWall4;
     public GameObject destroyedWall1, destroyedWall2, destroyedWall3, destroyedWall4;
     public GameObject gate1, gate2, gate3, gate4;
     public GameObject sideGate1, sideGate2, sideGate3, sideGate4;

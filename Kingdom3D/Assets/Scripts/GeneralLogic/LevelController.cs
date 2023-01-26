@@ -7,15 +7,18 @@ public class LevelController : MonoBehaviour
 {
     public static LevelController Instance;
 
+    [Header("For heirarchy readability")]
     public Transform resources;
     public Transform subjects;
     public Transform tools;
     public Transform greed;
     public Transform buildings;
     public Transform WallsNGates;
-    public List<Farm> farms;
-    public List<PortalLogic> portals = new();
-    public List<Zone> zones;
+    public Transform Player;
+
+    public static List<Farm> farms;
+    public static List<PortalLogic> portals = new();
+    public static Zone[] zones;
 
     private void Awake()
     {

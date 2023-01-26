@@ -1,8 +1,10 @@
+using Den.Tools.GUI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class IslandGenerator : MonoBehaviour
+public class UIIslandGenerator : MonoBehaviour
 {
 
     [Header("Zone Settings")]
@@ -21,17 +23,19 @@ public class IslandGenerator : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField, Min(-1)] int seed = -1;
+    [SerializeField] GameObject moundUI, zoneUI;
+    [SerializeField] float checkZoneMultiplier = 1, neighbouringZoneMultiplier = 1, moundPlaceMultiplier = 1, pauseBetweenMoundsMultiplier = 1;
 
     [ContextMenu("Setup World")]
     private void Awake()
     {
         if (seed == -1) seed = Random.Range(0, int.MaxValue);
         Random.InitState(seed);
-
-        CreateZones();
+        
+        StartCoroutine(CreateZones());
     }
 
-    public void CreateZones() // could create using bsp
+    public IEnumerator CreateZones() // could create using bsp
     {
         float radiusUsed = 0;
         float rotation;
@@ -106,7 +110,7 @@ public class IslandGenerator : MonoBehaviour
         }
         #endregion
 
-        #region Create Zones
+        #region Extra + Create Zones
         // final non-buildable layer enclosing everything
         radii.Add(islandRadius);
         allAngles.Add(new List<float>() { 0, PI2 });
@@ -127,74 +131,75 @@ public class IslandGenerator : MonoBehaviour
         #endregion
 
         #region Setup Gates
+        GameObject[] UIZones = new GameObject[zones.Count];
+        GameObject[][] UIMounds = new GameObject[zones.Count - 1][];
+
+        for (int i = 0; i < zones.Count; i++)
+        {
+            var ui = Instantiate(zoneUI, transform);
+            ui.GetComponent<RectTransform>().sizeDelta = 2 * zones[i].bottomRight.r * Vector2.one;
+            ui.GetComponent<ZoneUI>().bottomRight = zones[i].bottomRight;
+            ui.GetComponent<ZoneUI>().topLeft = zones[i].topLeft;
+            ui.GetComponent<ZoneUI>().gateDirections = zones[i].gateDirections.ToArray();
+            ui.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = 2 * zones[i].topLeft.r * Vector2.one;
+            ui.transform.GetChild(0).GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, zones[i].bottomRight.ThetaDegrees);
+            ui.transform.GetChild(0).GetComponent<Image>().fillAmount = zones[i].Width / PI2;
+            ui.transform.GetChild(0).GetComponent<Image>().color = new Color(Random.Range(0.7f, 1f), Random.Range(0, 0.3f), Random.Range(0, 0.3f));
+            UIZones[i] = ui;
+        }
 
         for (int i = 0; i < zones.Count - 1; i++)
         {
             for (int o = i + 1; o < zones.Count; o++)
             {
-                if (ZoneYBordersX(zones[i], zones[o], out Directions direction) && !(i < presetNumRingZones[0] && o < presetNumRingZones[0]))
+                UIZones[i].transform.GetChild(0).GetComponent<Image>().color = new Color(1f, .6f, 0f);
+                UIZones[o].transform.GetChild(0).GetComponent<Image>().color = new Color(1f, .6f, 0f);
+                yield return new WaitForSeconds(0.005f * checkZoneMultiplier);
+
+                if (IslandGenerator.ZoneYBordersX(zones[i], zones[o], out Directions direction) && !(i < presetNumRingZones[0] && o < presetNumRingZones[0]))
                 {
                     zones[i].neighbouringZones.Add(zones[o]);
                     zones[i].gateDirections.Add(direction);
                     zones[o].neighbouringZones.Add(zones[i]);
                     zones[o].gateDirections.Add((Directions)(((int)direction + 2) % 4));
+
+                    UIZones[i].transform.GetChild(0).GetComponent<Image>().color = new Color(0, 1f, 0);
+                    UIZones[o].transform.GetChild(0).GetComponent<Image>().color = new Color(0, 1f, 0);
+                    yield return new WaitForSeconds(.05f * neighbouringZoneMultiplier);
                 }
+
+                UIZones[i].transform.GetChild(0).GetComponent<Image>().color = new Color(Random.Range(0.7f, 1f), Random.Range(0, 0.3f), Random.Range(0, 0.3f));
+                UIZones[o].transform.GetChild(0).GetComponent<Image>().color = new Color(Random.Range(0.7f, 1f), Random.Range(0, 0.3f), Random.Range(0, 0.3f));
             }
 
-            zones[i].PlaceMounds();
+            zones[i].gates = new Gate[zones[i].neighbouringZones.Count];
+            UIZones[i].GetComponent<ZoneUI>().gateDirections = zones[i].gateDirections.ToArray();
+        }
+        #endregion
+
+        #region UI
+
+        for (int i = 0; i < zones.Count - 1; i++) // -1 as we don't want to include the last zone
+        {
+            UIZones[i].transform.GetChild(0).GetComponent<Image>().color = Color.green;
+            yield return new WaitForSeconds(0.1f * moundPlaceMultiplier);
+            UIMounds[i] = new GameObject[zones[i].neighbouringZones.Count];
+            for (int o = 0; o < zones[i].neighbouringZones.Count; o++)
+            {
+                var pos = zones[i].GetGatePos(zones[i].neighbouringZones[o], zones[i].gateDirections[o]);
+                UIMounds[i][o] = Instantiate(moundUI, transform);
+                UIMounds[i][o].GetComponent<RectTransform>().localPosition = PolarMaths.P2V2(pos);
+                yield return new WaitForSeconds(0.1f * moundPlaceMultiplier);
+            }
+            yield return new WaitForSeconds(0.3f * pauseBetweenMoundsMultiplier);
+            for (int o = 0; o < zones[i].neighbouringZones.Count; o++)
+            {
+                UIMounds[i][o].GetComponent<Image>().color = Color.gray;
+            }
+            UIZones[i].transform.GetChild(0).GetComponent<Image>().color = new Color(Random.Range(0.7f, 1f), Random.Range(0, 0.3f), Random.Range(0, 0.3f));
         }
         #endregion
 
         LevelController.zones = zones.ToArray();
-    }
-
-    public static bool ZoneYBordersX(Zone x, Zone y, out Directions direction)
-    {
-        // if bsp is used, will need to adjust up and down for left and right but with theta and r flipped (with slight adjustments), will need to change Zone.GetGatePos too
-        // refer to PossibleGateConnections.png in the git root
-        if (Mathf.Approximately(x.topLeft.r, y.bottomRight.r)) // is row above
-        {
-            direction = Directions.Up;
-
-            return // case 1
-                PolarMaths.AngleBetween(y.bottomRight.Theta, x.topLeft.Theta) > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 2.5f) &&
-                PolarMaths.AngleBetween(y.topLeft.Theta, x.topLeft.Theta) >= PolarMaths.AngleBetween(y.bottomRight.Theta, x.topLeft.Theta)
-            || // case 2
-                PolarMaths.AngleBetween(x.bottomRight.Theta, y.topLeft.Theta) > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 2.5f) &&
-                PolarMaths.AngleBetween(x.bottomRight.Theta, y.bottomRight.Theta) >= PolarMaths.AngleBetween(x.bottomRight.Theta, y.topLeft.Theta)
-            || // case 3
-                Mathf.Approximately(PolarMaths.AngleBetween(x.bottomRight.Theta, y.bottomRight.Theta) + PolarMaths.AngleBetween(y.bottomRight.Theta, x.topLeft.Theta), x.Width) &&
-                Mathf.Approximately(PolarMaths.AngleBetween(x.bottomRight.Theta, y.topLeft.Theta) + PolarMaths.AngleBetween(y.topLeft.Theta, x.topLeft.Theta), x.Width);
-        }
-        else if (Mathf.Approximately(x.bottomRight.r, y.topLeft.r))
-        {
-            direction = Directions.Down;
-
-            return
-                PolarMaths.AngleBetween(y.bottomRight.Theta, x.topLeft.Theta) > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 2.5f) &&
-                PolarMaths.AngleBetween(x.topLeft.Theta, y.bottomRight.Theta) > PolarMaths.AngleBetween(y.bottomRight.Theta, x.topLeft.Theta)
-            ||
-                PolarMaths.AngleBetween(x.bottomRight.Theta, y.topLeft.Theta) > PolarMaths.SectorAngle(x.topLeft.r, wallWidth * 2.5f) &&
-                PolarMaths.AngleBetween(y.topLeft.Theta, x.bottomRight.Theta) > PolarMaths.AngleBetween(x.bottomRight.Theta, y.topLeft.Theta)
-            ||
-                Mathf.Approximately(PolarMaths.AngleBetween(y.bottomRight.Theta, x.bottomRight.Theta) + PolarMaths.AngleBetween(x.bottomRight.Theta, y.topLeft.Theta), y.Width) &&
-                Mathf.Approximately(PolarMaths.AngleBetween(y.bottomRight.Theta, x.topLeft.Theta) + PolarMaths.AngleBetween(x.topLeft.Theta, y.topLeft.Theta), y.Width);
-        }
-        else if (x.topLeft.r == y.topLeft.r)
-        {
-            if (Mathf.Approximately(x.topLeft.Theta, y.bottomRight.Theta))
-            {
-                direction = Directions.Left;
-                return true;
-            }
-            else if (Mathf.Approximately(y.topLeft.Theta, x.bottomRight.Theta))
-            {
-                direction = Directions.Right;
-                return true;
-            }
-        }
-
-        direction = Directions.Down;
-        return false;
     }
 }

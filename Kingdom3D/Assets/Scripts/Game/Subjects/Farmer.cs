@@ -40,7 +40,7 @@ public class Farmer : SubjectBase
 
     void FindFarm()
     {
-        foreach (Farm farm in LevelController.Instance.farms)
+        foreach (Farm farm in LevelController.farms)
         {
             if (farm.FindEmptyField(ref linkedField))
             {
