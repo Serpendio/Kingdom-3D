@@ -7,6 +7,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 654207293719463743, guid: 5b56c84576343a645b3b7c9b82ef8008,
+        type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3448686053148782640, guid: 5b56c84576343a645b3b7c9b82ef8008,
         type: 3}
       propertyPath: m_Mesh
@@ -127,3 +132,24 @@ MonoBehaviour:
   spinSpeed: 40
   bobSpeed: 0.8
   bobHeight: 0.012
+--- !u!1 &5528692998189624420 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3448686054256896994, guid: 5b56c84576343a645b3b7c9b82ef8008,
+    type: 3}
+  m_PrefabInstance: {fileID: 7162391695502034822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5307147616899758881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5528692998189624420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de6627b6028422c4c9a491ad88625511, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCollectable: 0
+  resourceType: 0
+  target: {fileID: 0}
