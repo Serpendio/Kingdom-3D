@@ -71,7 +71,7 @@ public class PortalLogic : MonoBehaviour
     readonly List<Transform> nearbySubjects = new();
     private void OnTriggerEnter(Collider other)
     {
-        if (StaticFunctions.IsLayerInMask(GameController.Instance.villagerMask, other.gameObject.layer))
+        if (GameController.Instance.villagerMask.Contains(other.gameObject.layer))
         {
             nearbySubjects.Add(other.transform);
         }

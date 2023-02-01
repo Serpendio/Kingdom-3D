@@ -279,7 +279,7 @@ public class Zone
         for (int i = 0; i < positions.Length; i++)
         {
             
-            if (nextMound < mounds.Count() && StaticFunctions.Approximately(PolarMaths.P2V3(positions[i]), mounds[nextMound].transform.position))
+            if (nextMound < mounds.Count() && PolarMaths.P2V3(positions[i]).Approximately(mounds[nextMound].transform.position))
             {
                 int index = neighbouringZones.IndexOf(mounds[nextMound].linkedZones[1]);
                 gates[index] = Object.Instantiate(ObjectReferences.Instance.gate1, PolarMaths.P2V3(positions[i]),

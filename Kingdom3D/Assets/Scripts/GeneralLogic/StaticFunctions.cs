@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public static class StaticFunctions
 {
-    public static bool Approximately(Vector3 a, Vector3 b)
+    public static bool Approximately(this Vector3 a, Vector3 b)
     {
         return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z);
     }
@@ -15,7 +14,7 @@ public static class StaticFunctions
         return Vector3.Slerp(a - center, b - center, t) + center;
     }
 
-    public static bool IsLayerInMask(LayerMask mask, int layer)
+    public static bool Contains(this LayerMask mask, int layer)
     {
         return mask == (mask | (1 << layer));
     }
@@ -31,12 +30,12 @@ public static class StaticFunctions
     /// <param name="from">Vector3 a</param>
     /// <param name="to">Vector3 b</param>
     /// <returns>Returns (x-dist, z-dist)</returns>
-    public static Vector3 BirdsEyeDisplacement(Vector3 from, Vector3 to)
+    public static Vector3 BirdsEyeDisplacement(this Vector3 from, Vector3 to)
     {
         return new Vector3(from.x - to.x, 0, from.z - to.z);
     }
 
-    public static Vector3 BirdsEyeDisplacement(Vector3 to)
+    public static Vector3 BirdsEyeDisplacement(this Vector3 to)
     {
         return new Vector3(to.x, 0, to.z);
     }

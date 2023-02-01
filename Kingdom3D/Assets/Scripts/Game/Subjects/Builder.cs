@@ -57,7 +57,7 @@ public class Builder : SubjectBase
 
     private void OnTriggerEnter(Collider other)
     {
-        if (StaticFunctions.IsLayerInMask(GameController.Instance.enemyMask, other.gameObject.layer))
+        if (GameController.Instance.enemyMask.Contains(other.gameObject.layer))
         {
             CurrentState = States.Running;
         }
