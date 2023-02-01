@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class Interactable : MonoBehaviour
 {
     public UnityEvent onPaidFor;
-    public ResourceType resourceType;
+    //public ResourceType resourceType;
     [Min(1)] public int cost = 1;
 
     private void Awake()
@@ -16,14 +16,14 @@ public class Interactable : MonoBehaviour
         filledSlots = new GameObject[cost];
     }
 
-    private void Update()
+    /*private void Update()
     {
         transform.LookAt(GameController.Instance.player.transform.position);
-    }
+    }*/
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && slotsFilled == 0)
             other.GetComponent<PlayerController>().UpdateInteractables(true, this);
     }
 
@@ -55,12 +55,15 @@ public class Interactable : MonoBehaviour
                 }
                 else
                     x = i;
-                
+
+                float percent = cost == 1 ? 0 : x / (xMax - 1f); // to stop zero division
+
+
                 slots[i] = Instantiate(ObjectReferences.Instance.coinPlaceholder,
                                         StaticFunctions.Slerp(transform.GetChild(0).position - (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
                                         transform.GetChild(0).position + (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
-                                        x / (xMax - 1f),
-                                        transform.position - spread * y * transform.up),
+                                        percent,
+                                        transform.position - spread * y * transform.up), // slerp center
                                         Quaternion.AngleAxis(90, Vector3.up),
                                         transform);
             }
@@ -76,8 +79,27 @@ public class Interactable : MonoBehaviour
                     filledSlots[i].GetComponent<Resource>().Drop();
                 }
             }
+            slotsFilled = 0;
         }
     }
+
+    public void AddCoin(GameObject coin)
+    {
+        coin.GetComponent<Resource>().target = slots[slotsFilled].transform;
+        slotsFilled++;
+        if (slotsFilled == cost)
+        {
+            LevelController.Instance.player.GetComponent<PlayerController>().UpdateInteractables(false, this);
+            Invoke(nameof(CompletePayment), Resource.moveTime * 1.5f);
+            for (int i = 0; i < slotsFilled; i++)
+            {
+                Destroy(filledSlots[i]);
+            }
+            slotsFilled = 0;
+        }
+    }
+
+    void CompletePayment() { onPaidFor.Invoke(); }
 
     public void DropCoins()
     {
@@ -88,7 +110,7 @@ public class Interactable : MonoBehaviour
     }
 
     GameObject[] filledSlots;
-    int slotsFilled = 0;
+    public int slotsFilled = 0;
 
 
     [SerializeField] bool drawDebug;
@@ -112,10 +134,13 @@ public class Interactable : MonoBehaviour
                 else
                     x = i;
                 txt += $"Y = {y}, X = {x}, XMax = {xMax}\n";
-                                                                  /// coin center    +/- half the coins  * separation                   * lower it by the row
+
+                float percent = cost == 1 ? 0 : x / (xMax - 1f); // to stop zero division
+
+                /// coin center    +/- half the coins  * separation                   * lower it by the row
                 Gizmos.DrawSphere(StaticFunctions.Slerp(transform.GetChild(0).position - (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up, 
                                                         transform.GetChild(0).position + (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
-                                                        x / (xMax - 1f), 
+                                                        percent, 
                                                         transform.position - y * spread * transform.up),
                                                         .3f);
             }

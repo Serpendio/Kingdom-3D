@@ -7,7 +7,6 @@ public class PlayerController : MonoBehaviour
 {
     Rigidbody rig;
 
-    [SerializeField] GameObject coin;
     [SerializeField] float moveSpeed = 10;
     [SerializeField] float sprintSpeed = 15;
     [SerializeField] float maxStamina = 3;
@@ -44,27 +43,36 @@ public class PlayerController : MonoBehaviour
     public void Sprint(InputAction.CallbackContext context)
     {
         isSprinting = context.performed;
-        //print(context);
     }
 
-    bool paying;
+    public bool isPaying;
     public void PayResource(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && currentNearest != -1)
         {
-            paying = true;
+            isPaying = true;
+            StartCoroutine(PayInteractable());
         }
-        if (context.performed)
+        if (context.canceled)
         {
-            paying = false;
+            isPaying = false;
 
             // set to nearest interactable
         }
     }
 
+    private IEnumerator PayInteractable()
+    {
+        while (isPaying)
+        {
+            nearbyInteractables[currentNearest].AddCoin(Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up)));
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
     public void DropCoin(InputAction.CallbackContext context)
     {
-        if (context.performed) Instantiate(coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+        if (context.performed) Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
     }
 
     void findNearestInteractable()
@@ -85,7 +93,7 @@ public class PlayerController : MonoBehaviour
         {
             nearbyInteractables.Add(interactable);
 
-            if (!paying)
+            if (!isPaying)
             {
                 if (currentNearest != -1)
                 {
@@ -99,7 +107,7 @@ public class PlayerController : MonoBehaviour
         {
             if (nearbyInteractables.IndexOf(interactable) == currentNearest)
             {
-                paying = false;
+                isPaying = false;
                 nearbyInteractables.Remove(interactable);
 
                 if (nearbyInteractables.Count == 0)

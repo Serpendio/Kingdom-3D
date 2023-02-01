@@ -10,20 +10,28 @@ public class Resource : MonoBehaviour
 
     float timeSinceDrop = 0;
 
+    public Transform target;
+    bool reachedTarget;
+    Vector3 startPos;
+    Quaternion startRotation;
+    public const float moveTime = .5f;
+
     private void Start()
     {
-
+        startPos = transform.position;
+        startRotation = transform.rotation;
     }
 
     public void Drop()
     {
         isCollectable = true;
+        GetComponent<Rigidbody>().useGravity = true;
     }
 
     List<GameObject> overlappingVillagers = new();
     private void OnTriggerEnter(Collider other)
     {
-        if (StaticFunctions.IsLayerInMask(GameController.Instance.villagerMask, other.gameObject.layer)) // sort this out, if villager, if prioritise player, if knight
+        if (GameController.Instance.villagerMask.Contains(other.gameObject.layer)) // sort this out, if villager, if prioritise player, if knight
             overlappingVillagers.Add(other.gameObject);
 
     }
@@ -38,6 +46,17 @@ public class Resource : MonoBehaviour
         if (isCollectable)
         {
             //knights and greed skip the wait.
+        }
+        else if (!reachedTarget && target != null)
+        {
+            transform.position = Vector3.Lerp(startPos, target.position, timeSinceDrop);
+            transform.rotation = Quaternion.Lerp(startRotation, target.rotation, timeSinceDrop);
+
+            if (timeSinceDrop >= moveTime)
+            {
+                reachedTarget = true;
+            }
+            timeSinceDrop += Time.deltaTime;
         }
     }
 }
