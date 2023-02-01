@@ -142,6 +142,7 @@ public class IslandGenerator : MonoBehaviour
             }
 
             zones[i].PlaceMounds();
+            zones[i].gates = new Gate[zones[i].gateDirections.Count];
         }
         #endregion
 

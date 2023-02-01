@@ -28,7 +28,7 @@ public class Zone
     
     // literally just for the safety check & upgrading
     public Gate[] gates;
-    public DirtMound[] mounds;
+    public List<DirtMound> mounds;
     public List<Zone> neighbouringZones;
     public List<Directions> gateDirections;
     public bool isCentralZone;
@@ -120,83 +120,251 @@ public class Zone
 
     public void PlaceMounds()
     {
+        mounds = new();
         for (int i = 0; i < neighbouringZones.Count; i++)
         {
             if (gateDirections[i] == Directions.Up)
             {
-                Polar pos = GetGatePos(neighbouringZones[i], Directions.Up);
+                Polar pos = GetGatePos(this, neighbouringZones[i], Directions.Up);
                 var mound = Object.Instantiate(ObjectReferences.Instance.mound, PolarMaths.P2V3(pos),
-                    Quaternion.Euler(0, pos.ThetaDegreesClockwise, 0), LevelController.Instance.WallsNGates)
+                    Quaternion.Euler(0, pos.ThetaDegreesClockwise, 0), LevelController.Instance.mounds)
                     .GetComponent<DirtMound>();
                 mound.linkedZones = new Zone[] { this, neighbouringZones[i] };
+                mounds.Add(mound);
             }
         }
     }
 
-    public Polar GetGatePos(Zone otherZone, Directions direction)
+    public static Polar GetGatePos(Zone fromZone, Zone toZone, Directions direction)
     {
         Polar pos = new();
 
+        // get the position
         switch (direction) // refer to PossibleGateConnections.png in the git root
         {
             case Directions.Up:
-                pos.r = topLeft.r;
+                pos.r = fromZone.topLeft.r;
 
-                if (otherZone.topLeft.Theta > topLeft.Theta && topLeft.Theta > otherZone.bottomRight.Theta ||
-                    topLeft.Theta > otherZone.bottomRight.Theta && otherZone.bottomRight.Theta > bottomRight.Theta ||
-                    otherZone.bottomRight.Theta > bottomRight.Theta && bottomRight.Theta > otherZone.topLeft.Theta) // case 1 (accounting for theta 0 being in middle
+                if (toZone.topLeft.Theta > fromZone.topLeft.Theta && fromZone.topLeft.Theta > toZone.bottomRight.Theta ||
+                    fromZone.topLeft.Theta > toZone.bottomRight.Theta && toZone.bottomRight.Theta > fromZone.bottomRight.Theta ||
+                    toZone.bottomRight.Theta > fromZone.bottomRight.Theta && fromZone.bottomRight.Theta > toZone.topLeft.Theta) // case 1 (accounting for theta 0 being in middle
                 {
-                    pos.Theta = PolarMaths.CentreAngle(otherZone.bottomRight.Theta, topLeft.Theta);
+                    pos.Theta = PolarMaths.CentreAngle(toZone.bottomRight.Theta, fromZone.topLeft.Theta);
                 }
-                else if (otherZone.topLeft.Theta > bottomRight.Theta && bottomRight.Theta > otherZone.bottomRight.Theta ||
-                         bottomRight.Theta > otherZone.bottomRight.Theta && otherZone.bottomRight.Theta > topLeft.Theta ||
-                         otherZone.bottomRight.Theta > topLeft.Theta && topLeft.Theta > otherZone.topLeft.Theta) // case 2 (accounting for theta 0 being in middle)
+                else if (toZone.topLeft.Theta > fromZone.bottomRight.Theta && fromZone.bottomRight.Theta > toZone.bottomRight.Theta ||
+                         fromZone.bottomRight.Theta > toZone.bottomRight.Theta && toZone.bottomRight.Theta > fromZone.topLeft.Theta ||
+                         toZone.bottomRight.Theta > fromZone.topLeft.Theta && fromZone.topLeft.Theta > toZone.topLeft.Theta) // case 2 (accounting for theta 0 being in middle)
                 {
-                    pos.Theta = PolarMaths.CentreAngle(bottomRight.Theta, otherZone.topLeft.Theta);
+                    pos.Theta = PolarMaths.CentreAngle(fromZone.bottomRight.Theta, toZone.topLeft.Theta);
                 }
                 else // case 3 (we already know they connect, place gate in the middle of the smaller one)
                 {
-                    pos.Theta = Width > otherZone.Width ?
-                                    PolarMaths.CentreAngle(otherZone.bottomRight.Theta, otherZone.topLeft.Theta) :
-                                    PolarMaths.CentreAngle(bottomRight.Theta, topLeft.Theta);
+                    pos.Theta = fromZone.Width > toZone.Width ?
+                                    PolarMaths.CentreAngle(toZone.bottomRight.Theta, toZone.topLeft.Theta) :
+                                    PolarMaths.CentreAngle(fromZone.bottomRight.Theta, fromZone.topLeft.Theta);
                 }
                 break;
             case Directions.Down:
-                pos.r = bottomRight.r;
+                pos.r = fromZone.bottomRight.r;
 
-                if (topLeft.Theta > otherZone.topLeft.Theta && otherZone.topLeft.Theta > bottomRight.Theta ||
-                    otherZone.topLeft.Theta > bottomRight.Theta && bottomRight.Theta > otherZone.bottomRight.Theta ||
-                    bottomRight.Theta > otherZone.bottomRight.Theta && otherZone.bottomRight.Theta > topLeft.Theta) // case 1 (accounting for theta 0 being in middle
+                if (fromZone.topLeft.Theta > toZone.topLeft.Theta && toZone.topLeft.Theta > fromZone.bottomRight.Theta ||
+                    toZone.topLeft.Theta > fromZone.bottomRight.Theta && fromZone.bottomRight.Theta > toZone.bottomRight.Theta ||
+                    fromZone.bottomRight.Theta > toZone.bottomRight.Theta && toZone.bottomRight.Theta > fromZone.topLeft.Theta) // case 1 (accounting for theta 0 being in middle
                 {
-                    pos.Theta = PolarMaths.CentreAngle(bottomRight.Theta, otherZone.topLeft.Theta);
+                    pos.Theta = PolarMaths.CentreAngle(fromZone.bottomRight.Theta, toZone.topLeft.Theta);
                 }
-                else if (topLeft.Theta > otherZone.bottomRight.Theta && otherZone.bottomRight.Theta > bottomRight.Theta ||
-                         otherZone.bottomRight.Theta > bottomRight.Theta && bottomRight.Theta > otherZone.topLeft.Theta ||
-                         bottomRight.Theta > otherZone.topLeft.Theta && otherZone.topLeft.Theta > topLeft.Theta) // case 2 (accounting for theta 0 being in middle)
+                else if (fromZone.topLeft.Theta > toZone.bottomRight.Theta && toZone.bottomRight.Theta > fromZone.bottomRight.Theta ||
+                         toZone.bottomRight.Theta > fromZone.bottomRight.Theta && fromZone.bottomRight.Theta > toZone.topLeft.Theta ||
+                         fromZone.bottomRight.Theta > toZone.topLeft.Theta && toZone.topLeft.Theta > fromZone.topLeft.Theta) // case 2 (accounting for theta 0 being in middle)
                 {
-                    pos.Theta = PolarMaths.CentreAngle(otherZone.bottomRight.Theta, topLeft.Theta);
+                    pos.Theta = PolarMaths.CentreAngle(toZone.bottomRight.Theta, fromZone.topLeft.Theta);
                 }
                 else // case 3 (we already know they connect, place gate in the middle of the smaller one)
                 {
-                    pos.Theta = Width > otherZone.Width ? 
-                                    PolarMaths.CentreAngle(otherZone.bottomRight.Theta, otherZone.topLeft.Theta) : 
-                                    PolarMaths.CentreAngle(bottomRight.Theta, topLeft.Theta);
+                    pos.Theta = fromZone.Width > toZone.Width ? 
+                                    PolarMaths.CentreAngle(toZone.bottomRight.Theta, toZone.topLeft.Theta) : 
+                                    PolarMaths.CentreAngle(fromZone.bottomRight.Theta, fromZone.topLeft.Theta);
                 }
                 break;
             case Directions.Right: // will need to mimic up if bsp is used
-                pos.Theta = bottomRight.Theta;
-                pos.r = (topLeft.r + bottomRight.r) / 2;
+                pos.Theta = fromZone.bottomRight.Theta;
+                pos.r = (fromZone.topLeft.r + fromZone.bottomRight.r) / 2;
                 break;
             case Directions.Left: // will need to mimic up if bsp is used
-                pos.Theta = topLeft.Theta;
-                pos.r = (topLeft.r + bottomRight.r) / 2;
+                pos.Theta = fromZone.topLeft.Theta;
+                pos.r = (fromZone.topLeft.r + fromZone.bottomRight.r) / 2;
                 break;
         }
+
+
+        // align to walls
+        if (direction == Directions.Up || direction == Directions.Down)
+        {
+            Zone zoneToUse = direction == Directions.Up ? fromZone : toZone;
+
+            float fullWallLength = PolarMaths.ArcLength(zoneToUse.topLeft.r, zoneToUse.Width);
+            float unroundedNumWalls = fullWallLength / IslandGenerator.wallWidth;
+            int numWalls = Mathf.RoundToInt(unroundedNumWalls);
+            float widthMultiplier = unroundedNumWalls / numWalls;
+            float changePerWall = PolarMaths.SectorAngle(zoneToUse.topLeft.r, IslandGenerator.wallWidth * widthMultiplier); // is in radians
+
+            pos.Theta = (Mathf.Round((pos.Theta - zoneToUse.bottomRight.Theta) / changePerWall - 0.5f) + 0.5f) * changePerWall + zoneToUse.bottomRight.Theta;
+        }
+        else
+        {
+
+            float fullWallLength = fromZone.Height;
+            float unroundedNumWalls = fullWallLength / IslandGenerator.wallWidth;
+            int numWalls = Mathf.RoundToInt(unroundedNumWalls);
+            float widthMultiplier = unroundedNumWalls / numWalls;
+            float changePerWall = IslandGenerator.wallWidth * widthMultiplier;
+
+            pos.r = (Mathf.Round((pos.r - fromZone.bottomRight.r) / changePerWall - 0.5f) + 0.5f) * changePerWall + fromZone.bottomRight.r;
+        }
+
 
         return pos;
     }
 
-    public void BuildWalls() // had a mental breakdown creating this, excuse the sloppiness
+    public static Polar[] GetWallPositions(Zone zone, Directions direction)
+    {
+        Polar[] allPositions;
+        if (direction == Directions.Up || direction == Directions.Down)
+        {
+            Polar currentPos = direction == Directions.Up ? zone.topLeft : zone.bottomRight;
+
+            float fullWallLength = PolarMaths.ArcLength(currentPos.r, zone.Width);
+            float unroundedNumWalls = fullWallLength / IslandGenerator.wallWidth;
+            int numWalls = Mathf.RoundToInt(unroundedNumWalls);
+            float widthMultiplier = unroundedNumWalls / numWalls;
+            float changePerWall = PolarMaths.SectorAngle(currentPos.r, IslandGenerator.wallWidth * widthMultiplier); // is in radians
+
+            allPositions = new Polar[numWalls - 1];
+            for (int i = 0; i < numWalls - 1; i++)
+            {
+                currentPos.Theta = zone.bottomRight.Theta + changePerWall * (i + 0.5f);
+                allPositions[i] = currentPos;
+            }
+        }
+        else
+        {
+            Polar currentPos = direction == Directions.Left ? zone.topLeft : zone.bottomRight;
+            
+            float fullWallLength = zone.Height;
+            float unroundedNumWalls = fullWallLength / IslandGenerator.wallWidth;
+            int numWalls = Mathf.RoundToInt(unroundedNumWalls);
+            float widthMultiplier = unroundedNumWalls / numWalls;
+            float changePerWall = IslandGenerator.wallWidth * widthMultiplier;
+
+            allPositions = new Polar[numWalls];
+            for (int i = 0; i < numWalls; i++)
+            {
+                currentPos.r = zone.bottomRight.r + changePerWall * (i + 0.5f);
+                allPositions[i] = currentPos;
+            }
+        }
+
+        return allPositions;
+    }
+
+    public void BuildWalls()
+    {
+        List<GameObject> allObjects = new();
+
+        #region Up
+        int gateIndex = 0;
+        Polar[] positions = GetWallPositions(this, Directions.Up);
+        List<GameObject> connectedWalls = new();
+        int nextMound = 0;
+        for (int i = 0; i < positions.Length; i++)
+        {
+            
+            if (nextMound < mounds.Count() && StaticFunctions.Approximately(PolarMaths.P2V3(positions[i]), mounds[nextMound].transform.position))
+            {
+                int index = neighbouringZones.IndexOf(mounds[nextMound].linkedZones[1]);
+                gates[index] = Object.Instantiate(ObjectReferences.Instance.gate1, PolarMaths.P2V3(positions[i]),
+                        Quaternion.Euler(0, positions[i].ThetaDegreesClockwise, 0), LevelController.Instance.wallsNGates).GetComponent<Gate>();
+                allObjects.Add(gates[index].gameObject);
+                gateIndex = i;
+                nextMound++;
+            }
+            else 
+                connectedWalls.Add(Object.Instantiate(ObjectReferences.Instance.wall1, PolarMaths.P2V3(positions[i]),
+                    Quaternion.Euler(0, positions[i].ThetaDegreesClockwise, 0), LevelController.Instance.wallsNGates));
+        }
+        for (int i = 0; i < gates.Length; i++)
+            if (gateDirections[i] == Directions.Up)
+                gates[i].connectedWalls = connectedWalls;
+        allObjects.AddRange(connectedWalls);
+        #endregion
+
+        #region Sides
+        if (!isCentralZone)
+        {
+            //TODO: remove the + 90f once side walls have been properly created
+
+            int index = gateDirections.IndexOf(Directions.Left);
+            if (gates[index] == null)
+            {
+                positions = GetWallPositions(this, Directions.Left);
+                connectedWalls.Clear();
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    if (i == positions.Length / 2)
+                    {
+                        gates[index] = Object.Instantiate(ObjectReferences.Instance.sideGate1, PolarMaths.P2V3(positions[i]),
+                                Quaternion.Euler(0, positions[i].ThetaDegreesClockwise, 0), LevelController.Instance.wallsNGates).GetComponent<Gate>();
+                        allObjects.Add(gates[index].gameObject);
+                    }
+                    else
+                        connectedWalls.Add(Object.Instantiate(ObjectReferences.Instance.wall1, PolarMaths.P2V3(positions[i]),
+                            Quaternion.Euler(0, positions[i].ThetaDegreesClockwise + 90f, 0), LevelController.Instance.wallsNGates));
+                }
+                gates[index].connectedWalls = connectedWalls;
+            }
+            allObjects.AddRange(connectedWalls);
+
+            index = gateDirections.IndexOf(Directions.Right);
+            if (gates[index] == null)
+            {
+                positions = GetWallPositions(this, Directions.Left);
+                connectedWalls.Clear();
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    if (i == positions.Length / 2)
+                    {
+                        gates[index] = Object.Instantiate(ObjectReferences.Instance.sideGate1, PolarMaths.P2V3(positions[i]),
+                                Quaternion.Euler(0, positions[i].ThetaDegreesClockwise, 0), LevelController.Instance.wallsNGates).GetComponent<Gate>();
+                        allObjects.Add(gates[index].gameObject);
+                    }
+                    else
+                        connectedWalls.Add(Object.Instantiate(ObjectReferences.Instance.wall1, PolarMaths.P2V3(positions[i]),
+                            Quaternion.Euler(0, positions[i].ThetaDegreesClockwise + 90f, 0), LevelController.Instance.wallsNGates));
+                }
+                gates[index].connectedWalls = connectedWalls;
+            }
+            allObjects.AddRange(connectedWalls);
+        }
+        #endregion
+
+        for (int i = 0; i < gates.Length; i++)
+        {
+            if (gates[i] != null && gates[i].connectedZones == null)
+            {
+                gates[i].connectedZones = new Zone[] { this, neighbouringZones[i] };
+                neighbouringZones[i].gates[neighbouringZones[i].neighbouringZones.IndexOf(this)] = gates[i];
+            }
+        }
+
+        allObjects[gateIndex].AddComponent<BuildJob>().Setup((int)WallUpgradeHits.level1, 2, allObjects.ToArray(), false);
+
+        // remove the mounds
+        foreach (DirtMound mound in mounds)
+            Object.Destroy(mound.gameObject);
+        mounds = null;
+    }
+
+    public void BuildWallsOld()
     {
         List<GameObject> allObjects = new();
 
@@ -206,7 +374,7 @@ public class Zone
         float unroundedNumWalls = fullWallLength / IslandGenerator.wallWidth;
         int numWalls = Mathf.RoundToInt(unroundedNumWalls);
         float widthMultiplier = unroundedNumWalls / numWalls;
-        float changePerWall = PolarMaths.SectorAngle(IslandGenerator.wallWidth * widthMultiplier, IslandGenerator.wallWidth); // is in theta
+        float changePerWall = PolarMaths.SectorAngle(IslandGenerator.wallWidth * widthMultiplier, IslandGenerator.wallWidth); // is in radians
         Polar pos = new(topLeft.r, 0);
 
         List<Vector2Int> gateIndexes = new(); // x = index in gates, y = index in the full wall
@@ -236,14 +404,14 @@ public class Zone
             if (gateIndexesIndex < gateIndexes.Count() && i == gateIndexes[gateIndexesIndex].y)
             {
                 gates[gateIndexes[gateIndexesIndex].x] = Object.Instantiate(ObjectReferences.Instance.gate1, PolarMaths.P2V3(pos),
-                    Quaternion.Euler(0, pos.ThetaDegrees, 0), LevelController.Instance.WallsNGates).GetComponent<Gate>();
+                    Quaternion.Euler(0, pos.ThetaDegrees, 0), LevelController.Instance.wallsNGates).GetComponent<Gate>();
                 allObjects.Add(gates[gateIndexes[gateIndexesIndex].x].gameObject);
 
                 gateIndexesIndex++;
             }
             else
                 connectedWalls.Add(Object.Instantiate(ObjectReferences.Instance.wall1, PolarMaths.P2V3(pos),
-                    Quaternion.Euler(0, pos.ThetaDegrees, 0), LevelController.Instance.WallsNGates));
+                    Quaternion.Euler(0, pos.ThetaDegrees, 0), LevelController.Instance.wallsNGates));
         }
         foreach (Vector2Int index in gateIndexes)
         {
@@ -273,18 +441,18 @@ public class Zone
             if (i == gateIndexes[0].y)
             {
                 gates[gateIndexes[0].x] = Object.Instantiate(ObjectReferences.Instance.sideGate1, PolarMaths.P2V3(pos),
-                    Quaternion.Euler(0, pos.ThetaDegrees + 90, 0), LevelController.Instance.WallsNGates).GetComponent<Gate>();
+                    Quaternion.Euler(0, pos.ThetaDegrees + 90, 0), LevelController.Instance.wallsNGates).GetComponent<Gate>();
                 gates[gateIndexes[1].x] = Object.Instantiate(ObjectReferences.Instance.sideGate1, PolarMaths.P2V3(pos2),
-                    Quaternion.Euler(0, pos2.ThetaDegrees + 90, 0), LevelController.Instance.WallsNGates).GetComponent<Gate>();
+                    Quaternion.Euler(0, pos2.ThetaDegrees + 90, 0), LevelController.Instance.wallsNGates).GetComponent<Gate>();
                 allObjects.Add(gates[gateIndexes[0].x].gameObject);
                 allObjects.Add(gates[gateIndexes[1].x].gameObject);
             }
             else
             {
                 connectedWalls.Add(Object.Instantiate(ObjectReferences.Instance.sideWall1, PolarMaths.P2V3(pos),
-                    Quaternion.Euler(0, pos.ThetaDegrees + 90, 0), LevelController.Instance.WallsNGates));
+                    Quaternion.Euler(0, pos.ThetaDegrees + 90, 0), LevelController.Instance.wallsNGates));
                 connectedWalls2.Add(Object.Instantiate(ObjectReferences.Instance.sideWall1, PolarMaths.P2V3(pos2),
-                    Quaternion.Euler(0, pos2.ThetaDegrees + 90, 0), LevelController.Instance.WallsNGates));
+                    Quaternion.Euler(0, pos2.ThetaDegrees + 90, 0), LevelController.Instance.wallsNGates));
             }
         }
         gates[gateIndexes[0].x].connectedWalls = connectedWalls;

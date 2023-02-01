@@ -186,7 +186,7 @@ public class UIIslandGenerator : MonoBehaviour
             UIMounds[i] = new GameObject[zones[i].neighbouringZones.Count];
             for (int o = 0; o < zones[i].neighbouringZones.Count; o++)
             {
-                var pos = zones[i].GetGatePos(zones[i].neighbouringZones[o], zones[i].gateDirections[o]);
+                var pos = Zone.GetGatePos(zones[i], zones[i].neighbouringZones[o], zones[i].gateDirections[o]);
                 UIMounds[i][o] = Instantiate(moundUI, transform);
                 UIMounds[i][o].GetComponent<RectTransform>().localPosition = PolarMaths.P2V2(pos);
                 yield return new WaitForSeconds(0.1f * moundPlaceMultiplier);

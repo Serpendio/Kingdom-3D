@@ -13,8 +13,9 @@ public class LevelController : MonoBehaviour
     public Transform tools;
     public Transform greed;
     public Transform buildings;
-    public Transform WallsNGates;
-    public Transform Player;
+    public Transform wallsNGates;
+    public Transform mounds;
+    public Transform player;
 
     public static List<Farm> farms;
     public static List<PortalLogic> portals = new();
@@ -33,6 +34,9 @@ public class LevelController : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        if (player == null)
+            player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     public void UpdatePortalTimes() // called at start, and when a wall is destroyed or created (/ upgraded?)
