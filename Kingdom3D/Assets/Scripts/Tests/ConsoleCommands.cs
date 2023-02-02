@@ -4,6 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// Contains each command to be entered into the console.
+/// The class must inherit from monobehaviour
 /// Each command must be public
 /// They must return bool returning true if the command succeded else false
 /// The first parameter must be a string reference type. This if set will be output to the log

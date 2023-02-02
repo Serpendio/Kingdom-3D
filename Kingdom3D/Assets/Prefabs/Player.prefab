@@ -286,9 +286,9 @@ MonoBehaviour:
     m_ActionName: Console/Toggle Console[/Keyboard/slash]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: CheatConsole, Assembly-CSharp
-        m_MethodName: ToggleConsole
+      - m_Target: {fileID: 1571697647353240785}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: EnableConsole
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

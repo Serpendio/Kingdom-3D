@@ -122,6 +122,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void EnableConsole(InputAction.CallbackContext context)
+    {
+        if (context.performed && CheatConsole.Instance != null)
+        {
+            GetComponent<PlayerInput>().DeactivateInput();
+            CheatConsole.Instance.ShowConsole();
+        }
+    }
+
     private void FixedUpdate()
     {
         rig.velocity = (transform.forward * movement.y + transform.right * movement.x) * (isSprinting ? sprintSpeed : moveSpeed) + Vector3.up * rig.velocity.y;

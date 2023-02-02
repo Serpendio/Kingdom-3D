@@ -258,6 +258,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "AutoFill",
+                    "type": "Button",
+                    "id": "9e29daaa-d222-4d04-bf41-64c7a981f8cf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MemPrev",
+                    "type": "Button",
+                    "id": "f7660a45-2a5c-4e83-b7dc-34ebdd71cb61",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MemNext",
+                    "type": "Button",
+                    "id": "4edae02c-c65f-4c8d-8a2e-b4c660b62fdd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -274,23 +301,45 @@
                 },
                 {
                     "name": "",
-                    "id": "42e3e0e8-2096-4f8b-baf0-d83b24f1582e",
-                    "path": "<Keyboard>/delete",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Deselect",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "f1ac0e46-147a-4267-a6a7-c190a49900a2",
                     "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "16e1be9c-01b2-4fe3-ada6-413eb4b3954a",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AutoFill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "287f1fc0-6873-4f4f-afed-d0112e0b7f29",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MemPrev",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "98653c93-f457-4dd9-a8a6-ce12e6cf26ff",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MemNext",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -5,25 +5,29 @@ using System.Reflection;
 using System.Linq;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using System.Security.Cryptography;
-using UnityEngine.EventSystems;
-using UnityEngine.Windows;
 
 public class CheatConsole : MonoBehaviour
 {
+    public static CheatConsole Instance { get; private set; }
+
+    [SerializeField] MonoBehaviour commands;
     [SerializeField] TMP_InputField console;
-    [SerializeField] TextMeshProUGUI logBox, suggestion;
-    [SerializeField] Transform suggestionParent;
+    [SerializeField] GameObject log, suggestion;
+    [SerializeField] Transform suggestionParent, logBox;
+
     string[] methods;
     string[][] splitMethods;
     MethodInfo[] methodInfos;
     string[] pastLogs;
+    bool ignoreUpdateSuggestion = false;
+    readonly List<string> memory = new();
+    int memoryIndex = 0;
+    int autosuggestIndex = -1;
+
     float paddingOffset;
-    bool justRestarted = false;
+
     static readonly System.Type[] types = new System.Type[] { typeof(string), typeof(float), typeof(double), typeof(bool), typeof(int) };
     static readonly string[] typeNames = new string[] { "string", "float", "double", "bool", "int" };
-    List<string> lastInputs = new List<string>();
-    int inputIndex = 0;
 
     private void Awake()
     {
@@ -43,7 +47,17 @@ public class CheatConsole : MonoBehaviour
             return true;
         }
 
-        methodInfos = typeof(ConsoleCommands)
+        // setup singleton
+        if (Instance == null && commands != null)
+            Instance = this;
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // get all valid methods from commands as string using reflection
+        methodInfos = commands.GetType()
             .GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
             .Where(m => m.ReturnType == typeof(bool))
             .Where(m => checkType(m))
@@ -60,44 +74,36 @@ public class CheatConsole : MonoBehaviour
             }
             splitMethods[i] = splitMethods[i].Concat(args).ToArray();
         }
+
+        // the rest
         pastLogs = new string[6];
         GetComponent<PlayerInput>().DeactivateInput();
-        paddingOffset = suggestionParent.GetComponent<VerticalLayoutGroup>().padding.left;
+        paddingOffset = 10 - suggestionParent.GetComponent<VerticalLayoutGroup>().padding.left;
         console.ActivateInputField();
-        lastInputs.Add("");
+        memory.Add("");
+
     }
 
-    public void ToggleConsole(InputAction.CallbackContext context)
+    public void ShowConsole()
     {
-        if (context.performed)
-        {
-            gameObject.SetActive(true);
-            foreach (var input in PlayerInput.all)
-            {
-                if (input.defaultActionMap == "Player")
-                    input.DeactivateInput();
-            }
-            console.Select();
-            GetComponent<PlayerInput>().ActivateInput();
-        }
+        transform.GetChild(0).gameObject.SetActive(true);
+        LevelController.Instance.player.GetComponent<PlayerInput>().DeactivateInput();
+        console.Select();
+        GetComponent<PlayerInput>().ActivateInput();
     }
 
     public void Cancel(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            foreach (var input in PlayerInput.all)
-            {
-                if (input.defaultActionMap == "Player")
-                    input.ActivateInput();
-            }
+            LevelController.Instance.player.GetComponent<PlayerInput>().ActivateInput();
             HideConsole();
         }
     }
 
     public void HideConsole()
     {
-        gameObject.SetActive(false);
+        transform.GetChild(0).gameObject.SetActive(false);
         console.text = "";
         suggestionParent.gameObject.SetActive(false);
         foreach(Transform sugTransform in suggestionParent)
@@ -134,11 +140,12 @@ public class CheatConsole : MonoBehaviour
             return true;
         }
 
-        if (justRestarted)
+        if (ignoreUpdateSuggestion)
         {
-            justRestarted = false;
+            ignoreUpdateSuggestion = false;
             return;
         }
+        autosuggestIndex = -1;
         string input = console.text;
 
         string[] splitInput = input.Split(" ");
@@ -197,7 +204,7 @@ public class CheatConsole : MonoBehaviour
         Vector3 worldSpacePos = console.textViewport.TransformPoint(localPos);
         Vector3 consoleSpacePos = console.transform.parent.InverseTransformPoint(worldSpacePos);
         var sugestionPos = suggestionParent.localPosition;
-        sugestionPos.x = consoleSpacePos.x - paddingOffset;
+        sugestionPos.x = consoleSpacePos.x + paddingOffset;
         suggestionParent.localPosition = sugestionPos;
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(suggestionParent.transform as RectTransform);
@@ -205,17 +212,62 @@ public class CheatConsole : MonoBehaviour
 
     public void AutoSelect(InputAction.CallbackContext context)
     {
+        if (!context.performed || !suggestionParent.gameObject.activeSelf || suggestionParent.childCount == 0)
+            return;
 
+
+        string input = console.text;
+        string replacement;
+        List<string> autofills = new();
+        for (int i = 0; i < suggestionParent.childCount; i++)
+        {
+            var txt = suggestionParent.GetChild(i).GetComponent<TextMeshProUGUI>().text;
+            if (!txt.StartsWith("["))
+                autofills.Add(txt);
+        }
+
+        if (autofills.Count == 0)
+            return;
+
+        autosuggestIndex++;
+        if (autosuggestIndex > autofills.Count - 1)
+            autosuggestIndex = 0;
+
+        if (input.Length == 0)
+            replacement = autofills[autosuggestIndex];
+        else
+        {
+            var split = input.Split(' ');
+            split[^1] = autofills[autosuggestIndex];
+            replacement = string.Join(" ", split);
+        }
+
+        if (input == replacement)
+            return;
+
+        ignoreUpdateSuggestion = true;
+        console.text = replacement;
+        console.MoveTextEnd(false);
     }
 
-    public void MemUp(InputAction.CallbackContext context)
+    public void MemPrev(InputAction.CallbackContext context)
     {
+        if (!context.performed || memoryIndex < 1)
+            return;
 
+        memoryIndex--;
+        console.text = memory[memoryIndex];
+        suggestionParent.gameObject.SetActive(false);
     }
 
-    public void MemDown(InputAction.CallbackContext context)
+    public void MemNext(InputAction.CallbackContext context)
     {
+        if (!context.performed || memoryIndex > memory.Count - 2)
+            return;
 
+        memoryIndex++;
+        console.text = memory[memoryIndex];
+        suggestionParent.gameObject.SetActive(false);
     }
 
     public void Submit(InputAction.CallbackContext context)
@@ -247,16 +299,16 @@ public class CheatConsole : MonoBehaviour
 
         console.ActivateInputField();
         suggestionParent.gameObject.SetActive(false);
-        justRestarted = true;
+        ignoreUpdateSuggestion = true;
 
         string input = console.text.Trim();
         console.text = "";
         if (input == "")
             return;
 
-        inputIndex = lastInputs.Count;
-        if (lastInputs[^1] != input)
-            lastInputs.Add(input);
+        if (memory[^1] != input)
+            memory.Add(input);
+        memoryIndex = memory.Count;
 
         string[] splitInput = input.Split(" ");
         string[][] currentMethods = splitMethods.Where(m => EqualsMethod(m, splitInput)).ToArray();
@@ -300,7 +352,7 @@ public class CheatConsole : MonoBehaviour
                     }
                 }
 
-                if (!(bool)methodInfos[System.Array.IndexOf(methods, JoinMethod(currentMethods[i]))].Invoke(null, paramsToPass))
+                if (!(bool)methodInfos[System.Array.IndexOf(methods, JoinMethod(currentMethods[i]))].Invoke(commands, paramsToPass))
                 {
                     if ((string)paramsToPass[0] != "")
                         PrintError((string)paramsToPass[0]);
@@ -327,7 +379,7 @@ public class CheatConsole : MonoBehaviour
                     }
                 }
 
-                if (!(bool)methodInfos[System.Array.IndexOf(methods, JoinMethod(currentMethods[i]))].Invoke(null, paramsToPass))
+                if (!(bool)methodInfos[System.Array.IndexOf(methods, JoinMethod(currentMethods[i]))].Invoke(commands, paramsToPass))
                 {
                     if ((string)paramsToPass[0] != "")
                         PrintError((string)paramsToPass[0]);
@@ -343,93 +395,6 @@ public class CheatConsole : MonoBehaviour
         }
     }
 
-    public void OldSubmit(InputAction.CallbackContext context)
-    {
-        if(!context.performed) return;
-
-        string input = console.text.Trim();
-        console.text = "";
-        if (input == "")
-            return;
-
-        List<string> splitInput = new(input.Split(" "));
-        string currentMethod = "";
-
-        for (int i = 0; i < splitInput.Count; i++) 
-        {
-            if (methods.Where(s => s.StartsWith(currentMethod + "_" + splitInput[i] + "_") || s == currentMethod + "_" + splitInput[i]).Count() > 0)
-            {
-                currentMethod += "_" + splitInput[i];
-
-                if (i == splitInput.Count - 1)
-                    splitInput.RemoveRange(0, i + 1);
-
-            }
-            else
-            {
-                splitInput.RemoveRange(0, i);
-                break;
-            }
-        }
-
-        if (!methods.Contains(currentMethod))
-        {
-            if (currentMethod == "")
-                PrintError(string.Format("unknown command \"{0}\"", splitInput[0]));
-            else
-                PrintError(string.Format("unknown command \"{0}\"", currentMethod.Replace("_", " ") + " " + splitInput[0]));
-            return;
-        }
-
-        var parameters = methodInfos[System.Array.IndexOf(methods, currentMethod)].GetParameters();
-
-        if (splitInput.Count > parameters.Length - 1)
-        {
-            PrintError("too many parameters provided");
-        }
-
-        object[] paramsToPass = new object[splitInput.Count + 1];
-        paramsToPass[0] = "";
-        for (int i = 1; i < parameters.Length; i++)
-        {
-            if (i == splitInput.Count)
-            {
-                PrintError(string.Format("parameter {0} missing", i));
-                return;
-            }
-
-            try
-            { 
-                paramsToPass[i] = System.Convert.ChangeType(splitInput[i], parameters[i].ParameterType);
-            }
-            catch (System.InvalidCastException)
-            {
-                PrintError(string.Format("parameter {0} is not of type {1}", i, parameters[i].ParameterType));
-                return;
-            }
-            catch (System.OverflowException)
-            {
-                PrintError(string.Format("parameter {0} is out of range for type {1}", i, parameters[i].ParameterType));
-                return;
-            }
-            catch (System.FormatException)
-            {
-                PrintError(string.Format("parameter {0} is of wrong format for type {1}", i, parameters[i].ParameterType));
-                return;
-            }
-        }
-
-        if ((bool)methodInfos[System.Array.IndexOf(methods, currentMethod)].Invoke(null, paramsToPass))
-        {
-            if ((string)paramsToPass[0] != "")
-                PrintError((string)paramsToPass[0]);
-            else
-                PrintError("Something went wrong");
-        }
-        else if ((string)paramsToPass[0] != "")
-            UpdateLog((string)paramsToPass[0]);
-    }
-
     void PrintError(string msg)
     {
         UpdateLog("<color=red>Error: " + msg + "</color>");
@@ -437,16 +402,11 @@ public class CheatConsole : MonoBehaviour
 
     void UpdateLog(string msg)
     {
-        for (int i = 1; i < pastLogs.Length; i++)
-        {
-            pastLogs[i - 1] = pastLogs[i];
-        }
-        pastLogs[^1] = msg;
+        Instantiate(log, logBox).GetComponent<TextMeshProUGUI>().text = msg;
 
-        logBox.text = "";
+        if (logBox.childCount == 21)
+            Destroy(logBox.GetChild(0).gameObject);
 
-        foreach (var log in pastLogs)
-            if (!string.IsNullOrEmpty(log))
-                logBox.text += log + "\n";
+        LayoutRebuilder.ForceRebuildLayoutImmediate(logBox.transform as RectTransform);
     }
 }
