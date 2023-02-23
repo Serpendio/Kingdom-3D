@@ -6,9 +6,9 @@ using System.Linq;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class CheatConsole : MonoBehaviour
+public class RuntimeConsole : MonoBehaviour
 {
-    public static CheatConsole Instance { get; private set; }
+    public static RuntimeConsole Instance { get; private set; }
 
     [SerializeField] MonoBehaviour commands;
     [SerializeField] TMP_InputField console;
@@ -87,7 +87,7 @@ public class CheatConsole : MonoBehaviour
     public void ShowConsole()
     {
         transform.GetChild(0).gameObject.SetActive(true);
-        LevelController.Instance.player.GetComponent<PlayerInput>().DeactivateInput();
+        LevelController.player.GetComponent<PlayerInput>().DeactivateInput();
         console.Select();
         GetComponent<PlayerInput>().ActivateInput();
     }
@@ -96,7 +96,7 @@ public class CheatConsole : MonoBehaviour
     {
         if (context.performed)
         {
-            LevelController.Instance.player.GetComponent<PlayerInput>().ActivateInput();
+            LevelController.player.GetComponent<PlayerInput>().ActivateInput();
             HideConsole();
         }
     }
