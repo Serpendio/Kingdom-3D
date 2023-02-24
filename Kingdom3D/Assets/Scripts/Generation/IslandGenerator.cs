@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class IslandGenerator : MonoBehaviour
 {
 
@@ -15,9 +17,6 @@ public class IslandGenerator : MonoBehaviour
     public const float wallWidth = 2;
     [SerializeField] float[] presetRingRadii = new float[] { 20, 40 };
     [SerializeField] int[] presetNumRingZones = new int[] { 2, 3 };
-
-    [Header("Per Island Variables")]
-    [SerializeField, Min(100)] float islandRadius = 400f;
 
     [Header("Debug")]
     [SerializeField, Min(-1)] int seed = -1;
@@ -67,7 +66,7 @@ public class IslandGenerator : MonoBehaviour
         #endregion
 
         #region Random Values
-        while (islandRadius - radiusUsed > 1.5f * maxZoneRadius)
+        while (LevelController.Instance.islandRadius - radiusUsed > 1.5f * maxZoneRadius)
         {
             radiusUsed += Random.Range(minZoneRadius, maxZoneRadius); ;
             radii.Add(radiusUsed);
@@ -108,19 +107,23 @@ public class IslandGenerator : MonoBehaviour
 
         #region Create Zones
         // final non-buildable layer enclosing everything
-        radii.Add(islandRadius);
+        radii.Add(LevelController.Instance.islandRadius);
         allAngles.Add(new List<float>() { 0, PI2 });
 
+        int zoneIndex = 0;
         for (int r = 0; r < radii.Count - 1; r++)
         {
             for (int a = 0; a < allAngles[r].Count - 1; a++)
             {
                 zones.Add(new Zone(new Polar(radii[r], allAngles[r][a]),
-                                   new Polar(radii[r + 1], allAngles[r][a + 1])));
+                                   new Polar(radii[r + 1], allAngles[r][a + 1]),
+                                   zoneIndex));
+                zoneIndex++;
             }
         }
 
-        for (int i = 0; i < allAngles[0].Count; i++)
+        LevelController.numCentralZones = allAngles[0].Count - 1;
+        for (int i = 0; i < allAngles[0].Count - 1; i++) // -1 as start and end should be the exact same point
         {
             zones[i].isCentralZone = true;
         }
@@ -134,15 +137,12 @@ public class IslandGenerator : MonoBehaviour
             {
                 if (ZoneYBordersX(zones[i], zones[o], out Directions direction) && !(i < presetNumRingZones[0] && o < presetNumRingZones[0]))
                 {
-                    zones[i].neighbouringZones.Add(zones[o]);
-                    zones[i].gateDirections.Add(direction);
-                    zones[o].neighbouringZones.Add(zones[i]);
-                    zones[o].gateDirections.Add((Directions)(((int)direction + 2) % 4));
+                    zones[i].neighbourInfos.Add(new(null, direction, zones[o]));
+                    zones[o].neighbourInfos.Add(new(null, (Directions)(((int)direction + 2) % 4), zones[i]));
                 }
             }
 
             zones[i].PlaceMounds();
-            zones[i].gates = new Gate[zones[i].gateDirections.Count];
         }
         #endregion
 

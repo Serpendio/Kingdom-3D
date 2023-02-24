@@ -1,6 +1,6 @@
 using System;
 
-public class Heap<T> where T : IHeapItem<T>
+public class Heap<T> where T : IHeapItem<T> // ok, it's technically a heapSet as it cannot contain duplicates
 {
     T[] items;
     int currentItemCount;
@@ -12,6 +12,8 @@ public class Heap<T> where T : IHeapItem<T>
 
     public void Add(T item)
     {
+        if (Contains(item)) return;
+
         item.HeapIndex = currentItemCount;
         items[currentItemCount] = item;
         SortUp(item);

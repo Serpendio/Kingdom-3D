@@ -1,41 +1,59 @@
-using Den.Tools;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public interface IBuilding { }
+public interface IBuilding { public void PassLinkedJob(BuildJob job); }
 
-public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
+public class BuildJob : IHeapItem<BuildJob>
 {
     private int heapIndex;
     public int HeapIndex { get => heapIndex; set => heapIndex = value; }
 
     private int hitsGiven = 0;
-    private int requiredHits;
-    private int numBuilders;
-    private bool ignoreScaffolding;
-    private Builder[] builders;
-    private Scaffolding[] scaffolding;
-    private GameObject[] buildings;
+    private readonly int requiredHits;
+    private readonly bool ignoreScaffolding;
+    private readonly Builder[] builders;
+    private readonly Scaffolding[] scaffolding;
+    private readonly IBuilding[] buildings;
 
     public event System.Action OnBuildIncrement;
+    public event System.Action OnBuildComplete;
 
-    public void Setup(int requiredHits, int numBuilders, GameObject[] buildings, bool ignoreScaffolding)
+    public BuildJob(GameObject[] buildings, int numBuilders, int requiredHits, bool ignoreScaffolding, out bool successful)
     {
+        IBuilding GetIBuilding(GameObject building)
+        {
+            IBuilding comp = (IBuilding)building.GetComponent(typeof(IBuilding)); 
+            comp.PassLinkedJob(this); 
+            return comp;
+        }
+
+        this.buildings = buildings.Where(b => b.GetComponent(typeof(IBuilding)) != null).Select(b => GetIBuilding(b)).ToArray();
+        if (this.buildings.Length == 0)
+        {
+            successful = false;
+            return;
+        }
+
+        successful = true;
+        builders = new Builder[numBuilders];
+
+        if (CheatSettings.instantBuild)
+        {
+            this.ignoreScaffolding = true;
+            CompleteUpgrade();
+            return;
+        }
+
+        LevelController.AddJob(this);
+
         this.requiredHits = requiredHits;
-        this.numBuilders = numBuilders;
-        this.buildings = buildings;
         this.ignoreScaffolding = true;
-    }
 
-    private void StartUpgrade()
-    {
         if (!ignoreScaffolding)
         {
             scaffolding = new Scaffolding[buildings.Length];
             for (int i = 0; i < scaffolding.Length; i++)
-                scaffolding[i] = Instantiate(ObjectReferences.Instance.scaffolding, buildings[i].transform).GetComponent<Scaffolding>();
+                scaffolding[i] = Object.Instantiate(ObjectReferences.Instance.scaffolding, ((MonoBehaviour)this.buildings[i]).transform).GetComponent<Scaffolding>();
         }
     }
 
@@ -47,7 +65,7 @@ public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
 
         if (hitsGiven == requiredHits)
         {
-            FinishUpgrade();
+            CompleteUpgrade();
             return;
         }
 
@@ -56,9 +74,11 @@ public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
                 scaffold.UpdateScaffolding(hitsGiven / (float)(requiredHits - 1));
     }
 
-    private void FinishUpgrade()
+    private void CompleteUpgrade()
     {
         // show graphics, activate collider (perhaps, though it makes sense to be permanently enabled), free linked builders & destroy scaffolding
+
+        OnBuildComplete.Invoke();
 
         foreach (var builder in builders)
         {
@@ -69,22 +89,12 @@ public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
         {
             for (int i = 0; i < scaffolding.Length; i++)
             {
-                Destroy(scaffolding[i]);
-                buildings[i].transform.GetChild(0).gameObject.SetActive(true); // assumes child 0 is the graphics
+                Object.Destroy(scaffolding[i]);
+                ((MonoBehaviour)buildings[i]).transform.GetChild(0).gameObject.SetActive(true); // assumes child 0 is the graphics
             }
-            scaffolding = null;
         }
 
-        LevelController.Jobs.Remove(this);
-
-        Destroy(gameObject);
-    }
-
-    private void Start()
-    {
-        builders = new Builder[numBuilders];
-        LevelController.Jobs.Add(this);
-        StartUpgrade();
+        LevelController.RemoveJob(this);
     }
 
     public void AddBuilder(Builder builder)
@@ -92,7 +102,7 @@ public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
         builders[System.Array.IndexOf(builders, null)] = builder;
         if (!System.Array.Exists(builders, null))
         {
-            LevelController.Jobs.RemoveFirst();
+            LevelController.RemoveJob(this);
         }
     }
 
@@ -100,17 +110,14 @@ public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
     {
         if (builders.Contains(builder))
         {
-            builders[builders.Find(builder)] = null;
-            if (!LevelController.Jobs.Contains(this))
-            {
-                LevelController.Jobs.Add(this);
-            }
+            builders[System.Array.IndexOf(builders, builder)] = null;
+            LevelController.AddJob(this);
         }
     }
 
     public Transform GetRandomBuilding()
     {
-        return buildings[Random.Range(0, builders.Length)].transform;
+        return ((MonoBehaviour)buildings[Random.Range(0, builders.Length)]).transform;
     }
 
     public int CompareTo(BuildJob other)
@@ -118,6 +125,7 @@ public class BuildJob : MonoBehaviour, IHeapItem<BuildJob>
         return GetRandomBuilding().position.sqrMagnitude
             .CompareTo(other.GetRandomBuilding().position.sqrMagnitude);
     }
+
 
     /*static bool GetNearestAvailableBuilder(Vector3 position, ref Builder builder)
     {

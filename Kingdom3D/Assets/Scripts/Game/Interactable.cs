@@ -9,6 +9,7 @@ public class Interactable : MonoBehaviour
     public UnityEvent onPaidFor;
     //public ResourceType resourceType;
     [Min(1)] public int cost = 1;
+    bool hasBeenPaid = false;
 
     private void Awake()
     {
@@ -23,17 +24,23 @@ public class Interactable : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && slotsFilled == 0)
+        if (other.CompareTag("Player") && !hasBeenPaid)
             other.GetComponent<PlayerController>().UpdateInteractables(true, this);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && !hasBeenPaid)
         {
             other.GetComponent<PlayerController>().UpdateInteractables(false, this);
             SetCostVisibility(false);
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (LevelController.player != null && !hasBeenPaid) // stops errors when play ends
+            LevelController.player.GetComponent<PlayerController>().UpdateInteractables(false, this);
     }
 
     GameObject[] slots;
@@ -86,20 +93,23 @@ public class Interactable : MonoBehaviour
     public void AddCoin(GameObject coin)
     {
         coin.GetComponent<Resource>().target = slots[slotsFilled].transform;
+        filledSlots[slotsFilled] = coin;
         slotsFilled++;
         if (slotsFilled == cost)
         {
-            LevelController.Instance.player.GetComponent<PlayerController>().UpdateInteractables(false, this);
+            LevelController.player.GetComponent<PlayerController>().UpdateInteractables(false, this);
             Invoke(nameof(CompletePayment), Resource.moveTime * 1.5f);
-            for (int i = 0; i < slotsFilled; i++)
-            {
-                Destroy(filledSlots[i]);
-            }
-            slotsFilled = 0;
         }
     }
 
-    void CompletePayment() { onPaidFor.Invoke(); }
+    void CompletePayment()
+    {
+        for (int i = 0; i < slotsFilled; i++)
+        {
+            Destroy(filledSlots[i]);
+        }
+        onPaidFor.Invoke();
+    }
 
     public void DropCoins()
     {

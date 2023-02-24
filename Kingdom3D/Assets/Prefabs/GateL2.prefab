@@ -47,8 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 7024662362538569784}
-  connectedWalls: []
+  linkedWalls: []
   isDestroyed: 0
+  isSideways: 0
   level: 1
   health: 50
 --- !u!1001 &768994963035871031
@@ -137,11 +138,26 @@ PrefabInstance:
         type: 3}
       propertyPath: onPaidFor.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 5683130167648043064}
+      objectReference: {fileID: 676140991791289778}
     - target: {fileID: 4139001723012895171, guid: 3c6542d9a1636324ea0d4ffb581e8c37,
         type: 3}
       propertyPath: onPaidFor.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4139001723012895171, guid: 3c6542d9a1636324ea0d4ffb581e8c37,
+        type: 3}
+      propertyPath: onPaidFor.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: UpgradeZone
+      objectReference: {fileID: 0}
+    - target: {fileID: 4139001723012895171, guid: 3c6542d9a1636324ea0d4ffb581e8c37,
+        type: 3}
+      propertyPath: onPaidFor.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Gate, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4139001723012895171, guid: 3c6542d9a1636324ea0d4ffb581e8c37,
+        type: 3}
+      propertyPath: onPaidFor.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3c6542d9a1636324ea0d4ffb581e8c37, type: 3}
@@ -162,6 +178,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d9755fe35957aec46853a28ad1e9071f,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d9755fe35957aec46853a28ad1e9071f,
         type: 3}
@@ -234,7 +255,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &7024662362538569784
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -251,4 +272,4 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0

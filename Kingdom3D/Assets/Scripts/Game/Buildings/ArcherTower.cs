@@ -81,4 +81,9 @@ public class ArcherTower : MonoBehaviour, IBuilding
 
         return archer != null;
     }
+
+    public void PassLinkedJob(BuildJob job)
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -181,9 +181,4 @@ public static class PolarMaths
         else
             return ((2 * Mathf.PI + theta1 + theta2) / 2f) % (2 * Mathf.PI);
     }
-
-    public static bool Approximately(Polar polar1, Polar polar2)
-    {
-        return Mathf.Approximately(polar1.r, polar2.r) && Mathf.Approximately(polar1.Theta, polar2.Theta);
-    }
 }

@@ -4,11 +4,6 @@ using UnityEngine;
 
 public static class StaticFunctions
 {
-    public static bool Approximately(this Vector3 a, Vector3 b)
-    {
-        return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z);
-    }
-
     public static Vector3 Slerp(Vector3 a, Vector3 b, float t, Vector3 center)
     {
         return Vector3.Slerp(a - center, b - center, t) + center;

@@ -75,13 +75,18 @@ public class PlayerController : MonoBehaviour
         if (context.performed) Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
     }
 
-    void findNearestInteractable()
+    void FindNearestInteractable()
     {
+        currentNearest = -1;
         float closestDistance = float.MaxValue;
         for (int i = 0; i < nearbyInteractables.Count; i++)
         {
-            if (Vector3.Distance(transform.position, nearbyInteractables[i].transform.position) < closestDistance)
+            float dist = Vector3.Distance(transform.position, nearbyInteractables[i].transform.position);
+            if (dist < closestDistance)
+            {
                 currentNearest = i;
+                closestDistance = dist;
+            }
         }
     }
 
@@ -99,7 +104,7 @@ public class PlayerController : MonoBehaviour
                 {
                     nearbyInteractables[currentNearest].SetCostVisibility(false);
                 }
-                findNearestInteractable();
+                FindNearestInteractable();
                 nearbyInteractables[currentNearest].SetCostVisibility(true);
             }
         }
@@ -114,7 +119,7 @@ public class PlayerController : MonoBehaviour
                     currentNearest = -1;
                 else
                 {
-                    findNearestInteractable();
+                    FindNearestInteractable();
                     nearbyInteractables[currentNearest].SetCostVisibility(true);
                 }
             }

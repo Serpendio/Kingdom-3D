@@ -1,116 +1,177 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public enum WallLevels
-{
-    level1,
-    level2,
-    level3,
-    level4
-}
-
-public enum WallUpgradeHits
-{
-    level1 = 8,
-    level2 = 20,
-    level3 = 64,
-    level4 = 80,
-}
 
 public class Gate : MonoBehaviour, IBuilding
 {
-    [SerializeField] private Animator anim;
+    public enum WallLevels
+    {
+        level1,
+        level2,
+        level3,
+        level4
+    }
 
-    public List<GameObject> connectedWalls;
-    public Zone[] connectedZones = new Zone[2]; // if it's a ring gate, zone[0] will be the zone this gate upgrades
-    public bool isDestroyed;
+    public enum WallUpgradeHits
+    {
+        level1 = 8,
+        level2 = 20,
+        level3 = 64,
+        level4 = 80,
+    }
+
+    public struct ConnectionInfo
+    {
+        public Zone zone1, zone2;
+        public int index1, index2;
+
+        /// <param name="zone1">zone this connection upgrades</param>
+        /// <param name="index1">index of this gate & zone 2 in zone 1</param>
+        /// <param name="zone2">The secondary zone</param>
+        /// <param name="index2">index of this gate & zone 1 in zone 2</param>
+        public ConnectionInfo(Zone zone1, int index1, Zone zone2, int index2)
+        {
+            this.zone1 = zone1;
+            this.zone2 = zone2;
+            this.index1 = index1;
+            this.index2 = index2;
+        }
+    }
+
+    [SerializeField] private Animator anim;
+    Collider colliderComp;
+
+    public List<GameObject> linkedWalls;
+    public ConnectionInfo connectionInfo;
+    public bool isDestroyed, isSideways;
     public WallLevels level;
     [SerializeField] int health;
 
     public void Start()
     {
+        colliderComp = GetComponent<Collider>();
+
+        if (!builtViaJob) FinishBuild();
+
         SafetyCheck.OnKingdomSafe += OpenGate;
     }
 
     /// <summary>
-    /// Repairs or upgrades all connectedWalls depending on if the gate is Destroyed
+    /// Repairs or upgrades all connectedWalls
     /// </summary>
-    public void UpgradeWalls() // also repairs
+    public void RebuildWalls(bool shouldRepair)
     {
-        var wallToSpawn =
-            isDestroyed ?
-                (level == WallLevels.level1 ? ObjectReferences.Instance.wall1 :
-                level == WallLevels.level2 ? ObjectReferences.Instance.wall2 :
-                level == WallLevels.level3 ? ObjectReferences.Instance.wall3 :
-                ObjectReferences.Instance.wall4)
-            :
-                (level == WallLevels.level1 ? ObjectReferences.Instance.wall2 :
-                level == WallLevels.level2 ? ObjectReferences.Instance.wall3 :
-                ObjectReferences.Instance.wall4);
+        GameObject wallToSpawn, gateToSpawn;
+        WallLevels spawnLevel = shouldRepair ? level : level + 1;
 
-        GameObject temp;
-        for (int i = 0; i < connectedWalls.Count; i++)
+        if (isSideways)
         {
-            temp = Instantiate(wallToSpawn, connectedWalls[i].transform.position, 
-                connectedWalls[i].transform.rotation, connectedWalls[i].transform.parent);
-            temp.GetComponent<Wall>().parent = this;
-            
-            Destroy(connectedWalls[i]);
-            connectedWalls[i] = temp;
+            wallToSpawn = (spawnLevel == WallLevels.level1 ? ObjectReferences.Instance.sideWall1 :
+                            spawnLevel == WallLevels.level2 ? ObjectReferences.Instance.sideWall2 :
+                            spawnLevel == WallLevels.level3 ? ObjectReferences.Instance.sideWall3 :
+                            ObjectReferences.Instance.sideWall4);
+            gateToSpawn = (spawnLevel == WallLevels.level1 ? ObjectReferences.Instance.sideGate1 :
+                            spawnLevel == WallLevels.level2 ? ObjectReferences.Instance.sideGate2 :
+                            spawnLevel == WallLevels.level3 ? ObjectReferences.Instance.sideGate3 :
+                            ObjectReferences.Instance.sideGate4);
+        }
+        else
+        {
+            wallToSpawn = (spawnLevel == WallLevels.level1 ? ObjectReferences.Instance.wall1 :
+                            spawnLevel == WallLevels.level2 ? ObjectReferences.Instance.wall2 :
+                            spawnLevel == WallLevels.level3 ? ObjectReferences.Instance.wall3 :
+                            ObjectReferences.Instance.wall4);
+            gateToSpawn = (spawnLevel == WallLevels.level1 ? ObjectReferences.Instance.gate1 :
+                            spawnLevel == WallLevels.level2 ? ObjectReferences.Instance.gate2 :
+                            spawnLevel == WallLevels.level3 ? ObjectReferences.Instance.gate3 :
+                            ObjectReferences.Instance.gate4);
         }
 
-        wallToSpawn =
-            isDestroyed ?
-                (level == WallLevels.level1 ? ObjectReferences.Instance.gate1 :
-                level == WallLevels.level2 ? ObjectReferences.Instance.gate2 :
-                level == WallLevels.level3 ? ObjectReferences.Instance.gate3 :
-                ObjectReferences.Instance.gate4)
-            :
-                (level == WallLevels.level1 ? ObjectReferences.Instance.gate2 :
-                level == WallLevels.level2 ? ObjectReferences.Instance.gate3 :
-                ObjectReferences.Instance.gate4);
+        GameObject tempObj;
+        for (int i = 0; i < linkedWalls.Count; i++)
+        {
+            tempObj = Instantiate(wallToSpawn, linkedWalls[i].transform.position, 
+                linkedWalls[i].transform.rotation, linkedWalls[i].transform.parent);
+            tempObj.GetComponent<Wall>().parent = this;
+            
+            Destroy(linkedWalls[i]);
+            linkedWalls[i] = tempObj;
+        }
 
-        temp = Instantiate(wallToSpawn, transform.position, transform.rotation, transform.parent);
-        temp.GetComponent<Gate>().connectedWalls = connectedWalls;
+        // spawn new gate
+        tempObj = Instantiate(gateToSpawn, transform.position, transform.rotation, transform.parent);
+            
+        Gate newGate = tempObj.GetComponent<Gate>();
+        newGate.linkedWalls = linkedWalls;
+        newGate.connectionInfo = connectionInfo;
 
-        // if kingdom is safe, temp.GetComponent<Gate>().OpenGate();
-        if (SafetyCheck.isKingdomSafe)
-            temp.GetComponent<Gate>().OpenGate();
+        connectionInfo.zone1.neighbourInfos[connectionInfo.index1].gate = newGate;
+        connectionInfo.zone2.neighbourInfos[connectionInfo.index2].gate = newGate;
 
         Destroy(gameObject);
     }
 
     public void UpgradeZone()
     {
-        connectedZones[0].UpgradeWalls(level + 1);
+        connectionInfo.zone1.UpgradeWalls();
     }
 
     public void OpenGate()
     {
+        return;
+
         // play open anim
         anim.Play("Open");
 
         // update astar & collider
-        GetComponent<Collider>().enabled = false;
+        colliderComp.enabled = false;
     }
 
     public void CloseGate()
     {
+        return;
+
         // play close anim
         anim.Play("Close");
 
         // update astar & collider
-        GetComponent<Collider>().enabled = true;
+        colliderComp.enabled = true;
     }
 
-    public void Damage()
+    public void Damage(int damage)
+    {
+        health -= damage;
+        if (health <= 0)
+        {
+            DestroyWalls();
+        }
+    }
+
+    private void DestroyWalls()
     {
 
     }
 
-    public void SyncHealth()
+    bool builtViaJob = false;
+    public void PassLinkedJob(BuildJob job)
     {
+        builtViaJob = true;
+        job.OnBuildComplete += FinishBuild;
+    }
 
+
+    GameObject mapObj;
+    public void FinishBuild()
+    {
+        mapObj = Map.Instance.CreateMapObject(Map.ObjectTypes.Gate, (int)level);
+        mapObj.transform.localRotation = Quaternion.Euler(0, 0, -transform.rotation.eulerAngles.y + (isSideways ? 90 : 0));
+        mapObj.transform.localPosition = new(transform.position.x, transform.position.z);
+    }
+
+    private void OnDestroy()
+    {
+        if (mapObj != null) Destroy(mapObj);
     }
 }
