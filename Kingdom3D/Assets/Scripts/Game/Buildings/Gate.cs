@@ -123,21 +123,19 @@ public class Gate : MonoBehaviour, IBuilding
         return;
 
         // play open anim
-        anim.Play("Open");
+        //anim.Play("Open");
 
         // update astar & collider
-        colliderComp.enabled = false;
+        //colliderComp.enabled = false;
     }
 
     public void CloseGate()
     {
-        return;
-
         // play close anim
-        anim.Play("Close");
+        //anim.Play("Close");
 
         // update astar & collider
-        colliderComp.enabled = true;
+        //colliderComp.enabled = true;
     }
 
     public void Damage(int damage)

@@ -12,7 +12,7 @@ public class PortalLogic : MonoBehaviour
 
     private void Awake()
     {
-        GameController.Instance.portals.Add(this);
+        LevelController.portals.Add(this);
 
         Debug.LogWarning("WARN: If you are seeing this, greedling speed is still not being used");
 

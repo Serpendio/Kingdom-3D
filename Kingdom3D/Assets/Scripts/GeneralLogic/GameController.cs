@@ -12,13 +12,6 @@ public class GameController : MonoBehaviour
     public static GameController Instance;
 
     public LayerMask obstacleMask, wildlifeMask, enemyMask, villagerMask;
-    public Transform player;
-
-    public List<Transform> coins = new List<Transform>();
-    public List<PortalLogic> portals = new List<PortalLogic>();
-
-    public int gold;
-    public int gems;
 
     private void Awake()
     {
@@ -32,7 +25,6 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        player = GameObject.FindGameObjectWithTag("Player").transform;
         new SafetyCheck();
         new GreedTracker();
     }

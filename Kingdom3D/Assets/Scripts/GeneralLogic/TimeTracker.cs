@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TimeTracker : MonoBehaviour
 {
-    private static float _currentTime = sunrise;
+    private static float _currentTime;// = sunrise;
     public static int DayNum { get; private set; }
     public static float CurrentTime { get; set; }
 

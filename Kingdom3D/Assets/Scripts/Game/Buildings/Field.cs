@@ -13,7 +13,7 @@ public class Field : MonoBehaviour
         Stage3
     }
 
-    float completion = 0f;
+    float completion;
 
     public Farmer linkedFarmer;
     bool isFarming;

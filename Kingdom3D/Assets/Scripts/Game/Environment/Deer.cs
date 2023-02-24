@@ -22,7 +22,6 @@ public class Deer : CreatureBase
 
     float reassessTime;
     Rigidbody rig;
-    Transform player;
 
     State _state;
 
@@ -34,7 +33,6 @@ public class Deer : CreatureBase
         if (maxDist < minDist)
             maxDist = minDist;
         rig = GetComponent<Rigidbody>();
-        player = GameController.Instance.player;
     }
 
     private void Update()
@@ -48,11 +46,11 @@ public class Deer : CreatureBase
             case State.Observe1:
                 if (reassessTime <= 0f)
                 {
-                    if (Vector3.Distance(transform.position, player.position) < spotDistance && player.GetComponent<Rigidbody>().velocity.sqrMagnitude > 1)
+                    if (Vector3.Distance(transform.position, LevelController.player.position) < spotDistance && LevelController.player.GetComponent<Rigidbody>().velocity.sqrMagnitude > 1)
                     {
                         CurrentState = State.Run;
                         float x = Random.Range(-1f, 1f);
-                        float angle = (Quaternion.FromToRotation(transform.forward * -1, player.position - transform.position) * transform.rotation).eulerAngles.y + 150f * Mathf.Pow(x, 5) / Mathf.Abs(x);
+                        float angle = (Quaternion.FromToRotation(transform.forward * -1, LevelController.player.position - transform.position) * transform.rotation).eulerAngles.y + 150f * Mathf.Pow(x, 5) / Mathf.Abs(x);
                         transform.DORotate(angle * Vector3.up, .6f);
                     }
                     else
@@ -64,11 +62,11 @@ public class Deer : CreatureBase
             case State.Observe2:
                 if (reassessTime <= 0f)
                 {
-                    if (Vector3.Distance(transform.position, player.position) < spotDistance && player.GetComponent<Rigidbody>().velocity.sqrMagnitude > 1)
+                    if (Vector3.Distance(transform.position, LevelController.player.position) < spotDistance && LevelController.player.GetComponent<Rigidbody>().velocity.sqrMagnitude > 1)
                     {
                         CurrentState = State.Run;
                         float x = Random.Range(-1f, 1f);
-                        float angle = (Quaternion.FromToRotation(transform.forward * -1, player.position - transform.position) * transform.rotation).eulerAngles.y + 150f * Mathf.Pow(x, 5) / Mathf.Abs(x);
+                        float angle = (Quaternion.FromToRotation(transform.forward * -1, LevelController.player.position - transform.position) * transform.rotation).eulerAngles.y + 150f * Mathf.Pow(x, 5) / Mathf.Abs(x);
                         transform.DORotate(angle * Vector3.up, .6f);
                     }
                     else
@@ -92,11 +90,11 @@ public class Deer : CreatureBase
             case State.Run:
                 if (reassessTime <= 0f)
                 {
-                    if (Vector3.Distance(transform.position, player.position) < spotDistance && player.GetComponent<Rigidbody>().velocity.sqrMagnitude > 1)
+                    if (Vector3.Distance(transform.position, LevelController.player.position) < spotDistance && LevelController.player.GetComponent<Rigidbody>().velocity.sqrMagnitude > 1)
                     {
                         CurrentState = State.Run;
                         float x = Random.Range(-1f, 1f);
-                        float angle = (Quaternion.FromToRotation(transform.forward * -1, player.position - transform.position) * transform.rotation).eulerAngles.y + 150f * Mathf.Pow(x, 5) / Mathf.Abs(x);
+                        float angle = (Quaternion.FromToRotation(transform.forward * -1, LevelController.player.position - transform.position) * transform.rotation).eulerAngles.y + 150f * Mathf.Pow(x, 5) / Mathf.Abs(x);
                         transform.DORotate(angle * Vector3.up, .6f);
                     }
                     else
