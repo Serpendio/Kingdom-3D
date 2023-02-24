@@ -19,6 +19,7 @@ public class ObjectReferences : MonoBehaviour
     public GameObject wall1, wall2, wall3, wall4;
     public GameObject sideWall1, sideWall2, sideWall3, sideWall4;
     public GameObject destroyedWall1, destroyedWall2, destroyedWall3, destroyedWall4;
+    public GameObject destroyedGate1, destroyedGate2, destroyedGate3, destroyedGate4;
     public GameObject gate1, gate2, gate3, gate4;
     public GameObject sideGate1, sideGate2, sideGate3, sideGate4;
     public GameObject keep1, keep2, keep3, keep4;

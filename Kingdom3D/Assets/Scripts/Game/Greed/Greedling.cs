@@ -46,7 +46,7 @@ public class Greedling : CreatureBase
     {
         if (!fromNightlyPortal)
         {
-            GreedTracker.OnDeath(Greed.Greedling, transform);
+            GreedTracker.OnDeath(GreedTracker.GreedType.Greedling, transform);
         }
     }
 

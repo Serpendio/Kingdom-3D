@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 [System.Serializable]
@@ -54,6 +53,33 @@ public struct Polar
     public static Polar operator *(float a, Polar b)
     {
         return new Polar(a * b.r, a * b.Theta);
+    }
+    
+    public static bool operator ==(Polar a, Polar b)
+    {
+        return Mathf.Approximately(a.r, b.r) && 
+            (Mathf.Approximately(a.theta, b.theta) || 
+                (Mathf.Approximately(a.theta, 0) && Mathf.Approximately(b.theta, 2 * Mathf.PI)) ||
+                (Mathf.Approximately(b.theta, 0) && Mathf.Approximately(a.theta, 2 * Mathf.PI)));
+    }
+
+    public static bool operator !=(Polar a, Polar b)
+    {
+        return !(a == b);
+    }
+
+    public override bool Equals(object obj)
+    {
+        // From the dotnet api docs
+        // Performs an equality check on two points (integer pairs).
+        if (obj == null || GetType() != obj.GetType()) return false;
+        return this == (Polar)obj;
+    }
+
+    public override int GetHashCode()
+    {
+        // From the dotnet api docs for Equals
+        return Tuple.Create(r, Theta).GetHashCode();
     }
 
     public override string ToString()

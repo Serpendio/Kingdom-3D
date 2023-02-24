@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class TimeTracker : MonoBehaviour
 {
-    public static int DaysPast { get; private set; }
-    public static float CurrentTime { get; private set; } = sunrise;
+    private static float _currentTime = sunrise;
+    public static int DayNum { get; private set; }
+    public static float CurrentTime { get; set; }
 
     public const float dayLength = 1440;
     public const float timeConversionRate = 360; // 1 day = 1440 mins = 4 irl mins, i.e. every minute = six in game hours

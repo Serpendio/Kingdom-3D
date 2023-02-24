@@ -5,7 +5,7 @@ using System;
 
 public class LevelController : MonoBehaviour
 {
-    public static LevelController Instance;
+    public static LevelController Instance { get; private set; }
 
     [Header("For heirarchy readability")]
     public Transform resources;
@@ -15,13 +15,16 @@ public class LevelController : MonoBehaviour
     public Transform buildings;
     public Transform wallsNGates;
     public Transform mounds;
-    public Transform player;
+    public static Transform player;
 
     public static List<Farm> farms;
     public static List<PortalLogic> portals = new();
     public static Zone[] zones;
-    public static Heap<BuildJob> Jobs { get; private set; } = new(256); // surely you're not going to have more than 256 jobs going?
+    private static readonly Heap<BuildJob> jobs = new(256); // surely you're not going to have more than 256 jobs going?
     public static List<Polar> outerWallPositions = new();
+
+    public static int numCentralZones;
+    [SerializeField, Min(100)] public float islandRadius = 400f;
 
     private void Awake()
     {
@@ -35,8 +38,7 @@ public class LevelController : MonoBehaviour
             return;
         }
 
-        if (player == null)
-            player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     public void UpdatePortalTimes() // called at start, and when a wall is destroyed or created (/ upgraded?)
@@ -57,9 +59,9 @@ public class LevelController : MonoBehaviour
 
     public static bool GetJob(out BuildJob job)
     {
-        if (Jobs.Count > 0)
+        if (jobs.Count > 0)
         {
-            job = Jobs[0];
+            job = jobs[0];
             return true;
         }
         else 
@@ -69,8 +71,24 @@ public class LevelController : MonoBehaviour
         }
     }
 
+    public static bool CreateJob(GameObject[] buildings, int numBuilders, int requiredHits, bool ignoreScaffolding)
+    {
+        new BuildJob(buildings, numBuilders, requiredHits, ignoreScaffolding, out bool successful);
+        return successful;
+    }
+
     public static void AddJob(BuildJob job)
     {
-        Jobs.Add(job);
+        jobs.Add(job);
+    }
+
+    public static void RemoveJob(BuildJob job)
+    {
+        jobs.Remove(job);
+    }
+
+    public static bool JobExists(BuildJob job)
+    {
+        return jobs.Contains(job);
     }
 }

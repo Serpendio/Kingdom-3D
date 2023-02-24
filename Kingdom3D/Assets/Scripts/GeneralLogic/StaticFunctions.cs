@@ -40,6 +40,16 @@ public static class StaticFunctions
         return new Vector3(to.x, 0, to.z);
     }
 
+    public static Vector2 V2BirdsEyeDisplacement(this Vector3 from, Vector3 to)
+    {
+        return new Vector2(from.x - to.x, from.z - to.z);
+    }
+
+    public static Vector2 V2BirdsEyeDisplacement(this Vector3 to)
+    {
+        return new Vector2(to.x, to.z);
+    }
+
     /*public static Vector3 Direction2D(Vector3 from, Vector3 to)
     {
         return new Vector3(to.x - from.x, 0, to.z - from.z).normalized;

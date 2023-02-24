@@ -124,10 +124,10 @@ public class PlayerController : MonoBehaviour
 
     public void EnableConsole(InputAction.CallbackContext context)
     {
-        if (context.performed && CheatConsole.Instance != null)
+        if (context.performed && RuntimeConsole.Instance != null)
         {
             GetComponent<PlayerInput>().DeactivateInput();
-            CheatConsole.Instance.ShowConsole();
+            RuntimeConsole.Instance.ShowConsole();
         }
     }
 

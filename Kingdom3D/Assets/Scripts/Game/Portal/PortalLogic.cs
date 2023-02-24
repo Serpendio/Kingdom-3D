@@ -27,7 +27,7 @@ public class PortalLogic : MonoBehaviour
     public bool sendingWave;
     float spawnDelay;
     float addDelay;
-    public List<Greed> greedQueue = new();
+    public List<GreedTracker.GreedType> greedQueue = new();
     int health;
 
     float greedlingSpeed = 5; // temporary value, pls replace with the actual variable
@@ -59,7 +59,7 @@ public class PortalLogic : MonoBehaviour
         {
             if (addDelay <= 0)
             {
-                greedQueue.Add((Greed)Random.Range(0, 2));
+                greedQueue.Add((GreedTracker.GreedType)Random.Range(0, 2));
                 addDelay = Random.Range(3f, 5f);
             }
             else

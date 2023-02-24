@@ -49,8 +49,8 @@ public class Resource : MonoBehaviour
         }
         else if (!reachedTarget && target != null)
         {
-            transform.position = Vector3.Lerp(startPos, target.position, timeSinceDrop);
-            transform.rotation = Quaternion.Lerp(startRotation, target.rotation, timeSinceDrop);
+            transform.position = Vector3.Lerp(startPos, target.position, timeSinceDrop / moveTime);
+            transform.rotation = Quaternion.Lerp(startRotation, target.rotation, timeSinceDrop / moveTime);
 
             if (timeSinceDrop >= moveTime)
             {
@@ -58,5 +58,15 @@ public class Resource : MonoBehaviour
             }
             timeSinceDrop += Time.deltaTime;
         }
+    }
+
+    void SetTarget()
+    {
+
+    }
+
+    void FreeTarget()
+    {
+
     }
 }

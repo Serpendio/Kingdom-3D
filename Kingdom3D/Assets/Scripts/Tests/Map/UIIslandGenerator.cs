@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIIslandGenerator : MonoBehaviour
+/*public class UIIslandGenerator : MonoBehaviour
 {
 
     [Header("Zone Settings")]
@@ -115,12 +115,14 @@ public class UIIslandGenerator : MonoBehaviour
         radii.Add(islandRadius);
         allAngles.Add(new List<float>() { 0, PI2 });
 
+        int zoneIndex = 0;
         for (int r = 0; r < radii.Count - 1; r++)
         {
             for (int a = 0; a < allAngles[r].Count - 1; a++)
             {
                 zones.Add(new Zone(new Polar(radii[r], allAngles[r][a]),
-                                   new Polar(radii[r + 1], allAngles[r][a + 1])));
+                                   new Polar(radii[r + 1], allAngles[r][a + 1]),
+                                   zoneIndex++));
             }
         }
 
@@ -202,4 +204,4 @@ public class UIIslandGenerator : MonoBehaviour
 
         LevelController.zones = zones.ToArray();
     }
-}
+}*/
