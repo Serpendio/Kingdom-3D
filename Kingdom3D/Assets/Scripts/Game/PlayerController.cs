@@ -53,11 +53,16 @@ public class PlayerController : MonoBehaviour
             isPaying = true;
             StartCoroutine(PayInteractable());
         }
-        if (context.canceled)
+        if (context.canceled && isPaying)
         {
             isPaying = false;
 
-            // set to nearest interactable
+            if (currentNearest != -1)
+            {
+                nearbyInteractables[currentNearest].SetCostVisibility(false);
+                FindNearestInteractable();
+                nearbyInteractables[currentNearest].SetCostVisibility(true);
+            }
         }
     }
 
@@ -65,6 +70,11 @@ public class PlayerController : MonoBehaviour
     {
         while (isPaying)
         {
+            if (currentNearest == -1)
+            {
+                isPaying = false;
+                break;
+            }
             nearbyInteractables[currentNearest].AddCoin(Instantiate(ObjectReferences.Instance.coin, transform.position, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up)));
             yield return new WaitForSeconds(0.3f);
         }

@@ -13,14 +13,14 @@ public class Interactable : MonoBehaviour
 
     private void Awake()
     {
-        slots = new GameObject[cost];
+        slotOutlines = new GameObject[cost];
         filledSlots = new GameObject[cost];
     }
 
-    /*private void Update()
+    private void Update()
     {
-        transform.LookAt(GameController.Instance.player.transform.position);
-    }*/
+        transform.LookAt(LevelController.player.position.BirdsEyeDisplacement());
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -39,11 +39,12 @@ public class Interactable : MonoBehaviour
 
     private void OnDestroy()
     {
+        DropCoins();
         if (LevelController.player != null && !hasBeenPaid) // stops errors when play ends
             LevelController.player.GetComponent<PlayerController>().UpdateInteractables(false, this);
     }
 
-    GameObject[] slots;
+    GameObject[] slotOutlines;
     readonly float spread = .64f;
     public void SetCostVisibility(bool visible)
     {
@@ -66,7 +67,7 @@ public class Interactable : MonoBehaviour
                 float percent = cost == 1 ? 0 : x / (xMax - 1f); // to stop zero division
 
 
-                slots[i] = Instantiate(ObjectReferences.Instance.coinPlaceholder,
+                slotOutlines[i] = Instantiate(ObjectReferences.Instance.coinPlaceholder,
                                         StaticFunctions.Slerp(transform.GetChild(0).position - (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
                                         transform.GetChild(0).position + (xMax - 1) / 2f * spread * transform.right - y * spread * transform.up,
                                         percent,
@@ -79,24 +80,20 @@ public class Interactable : MonoBehaviour
         {
             for (int i = 0; i < cost; i++)
             {
-                Destroy(slots[i]);
-
-                if (i < slotsFilled)
-                {
-                    filledSlots[i].GetComponent<Resource>().Drop();
-                }
+                Destroy(slotOutlines[i]);
             }
-            slotsFilled = 0;
+            DropCoins();
         }
     }
 
     public void AddCoin(GameObject coin)
     {
-        coin.GetComponent<Resource>().target = slots[slotsFilled].transform;
+        coin.GetComponent<Resource>().target = slotOutlines[slotsFilled].transform;
         filledSlots[slotsFilled] = coin;
         slotsFilled++;
         if (slotsFilled == cost)
         {
+            hasBeenPaid = true;
             LevelController.player.GetComponent<PlayerController>().UpdateInteractables(false, this);
             Invoke(nameof(CompletePayment), Resource.moveTime * 1.5f);
         }
@@ -108,6 +105,7 @@ public class Interactable : MonoBehaviour
         {
             Destroy(filledSlots[i]);
         }
+        slotsFilled = 0;
         onPaidFor.Invoke();
     }
 
@@ -117,6 +115,7 @@ public class Interactable : MonoBehaviour
         {
             filledSlots[i].GetComponent<Resource>().Drop();
         }
+        slotsFilled = 0;
     }
 
     GameObject[] filledSlots;

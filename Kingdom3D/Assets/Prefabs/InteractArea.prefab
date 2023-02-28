@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4139001721942360345}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -93,12 +93,6 @@ MonoBehaviour:
   onPaidFor:
     m_PersistentCalls:
       m_Calls: []
-  resourceType: 0
   cost: 3
-  coin: {fileID: 5528692998189624420, guid: e070e22352686c847b765812c311812a, type: 3}
-  gem: {fileID: 919132149155446097, guid: 17c4f05249980ff4eb9a00df0f89b634, type: 3}
-  coinPlaceholder: {fileID: 6443721024419588932, guid: ffe7b806c9001bb41b0446d50e50931c,
-    type: 3}
-  gemPlaceHolder: {fileID: 7320561427444481913, guid: 9815703cbc780ee46a004190999abd4a,
-    type: 3}
+  slotsFilled: 0
   drawDebug: 0

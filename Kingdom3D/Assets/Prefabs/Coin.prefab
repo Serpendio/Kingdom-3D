@@ -23,10 +23,20 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: b155e5ebfb70f03428d89a7ed7e856f5, type: 2}
+    - target: {fileID: 3448686053148782647, guid: 5b56c84576343a645b3b7c9b82ef8008,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 3448686054256896994, guid: 5b56c84576343a645b3b7c9b82ef8008,
         type: 3}
       propertyPath: m_Name
       value: Coin
+      objectReference: {fileID: 0}
+    - target: {fileID: 3448686054256896994, guid: 5b56c84576343a645b3b7c9b82ef8008,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3448686054256896994, guid: 5b56c84576343a645b3b7c9b82ef8008,
         type: 3}
