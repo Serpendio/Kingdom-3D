@@ -13,7 +13,7 @@ public class Farmer : SubjectBase
         base.Awake();
 
         SafetyCheck.OnKingdomSafe += StartFarming;
-        TimeTracker.OnSunsetPassed += EndFarming;
+        TimeTracker.AddActionAtTime(TimeTracker.sunset, EndFarming);
     }
 
     public void StartFarming()

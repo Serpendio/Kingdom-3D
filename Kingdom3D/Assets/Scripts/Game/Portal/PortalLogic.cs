@@ -19,7 +19,7 @@ public class PortalLogic : MonoBehaviour
         distanceFromOuterWall = transform.position.magnitude; // for now just using distance to camp
         addDelay = Random.Range(2.5f, 5f);
 
-        TimeTracker.OnNoonPassed += () => { defenceRange.enabled = true; };
+        TimeTracker.AddActionAtTime(TimeTracker.noon, () => { defenceRange.enabled = true; });
     }
 
     float distanceFromOuterWall;

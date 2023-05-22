@@ -54,6 +54,6 @@ public class GreedTracker
 
     public GreedTracker()
     {
-        TimeTracker.OnDawnPassed += () => { foreach (Transform greedling in portalGreedlings) greedling.GetComponent<Greedling>().Retreat();  };
+        TimeTracker.AddActionAtTime(TimeTracker.dawn, () => { foreach (Transform greedling in portalGreedlings) greedling.GetComponent<Greedling>().Retreat(); });
     }
 }

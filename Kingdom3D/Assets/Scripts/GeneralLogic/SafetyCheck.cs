@@ -11,7 +11,7 @@ public class SafetyCheck
 
     public SafetyCheck()
     {
-        TimeTracker.OnDawnPassed += () => { if (GreedTracker.allKilled) OnKingdomSafe(); };
+        TimeTracker.AddActionAtTime(TimeTracker.dawn, () => { if (GreedTracker.allKilled) OnKingdomSafe(); });
     }
 
     public static void MakeSafe()
