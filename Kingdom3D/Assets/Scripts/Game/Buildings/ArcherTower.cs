@@ -34,7 +34,7 @@ public class ArcherTower : MonoBehaviour, IBuilding
                 if (archers[i] == null)
                 {
                     if (GetNearestAvailableArcher(transform.position, ref archers[i]))
-                        archers[i].target = transform;
+                        archers[i].MoveTo(transform.position);
                     else
                         break;
                 }
@@ -74,8 +74,8 @@ public class ArcherTower : MonoBehaviour, IBuilding
     {
         archer = LevelController.Instance.subjects
             .GetComponentsInChildren<SubjectBase>() // get every subjectBase
-            .OfType<Archer>() // remove any that aren't builders
-            .Where(b => b.target == null) // remove any that are already at moving to a target
+            .OfType<Archer>() // remove any that aren't archers
+            .Where(a => !a.calledToServe) // remove any that are already at moving to a target
             .OrderBy(b => (b.transform.position - position).sqrMagnitude) // order by distance
             .FirstOrDefault();
 

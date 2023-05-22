@@ -21,6 +21,7 @@ public class ObjectReferences : MonoBehaviour
     public GameObject gate1, gate2, gate3, gate4;
     public GameObject sideGate1, sideGate2, sideGate3, sideGate4;
     public GameObject keep1, keep2, keep3, keep4;
+    public GameObject farm, field, crop, cropWithered;
 
     private void Awake()
     {

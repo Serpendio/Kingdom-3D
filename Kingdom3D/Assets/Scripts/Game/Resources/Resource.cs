@@ -31,6 +31,8 @@ public class Resource : MonoBehaviour
     List<GameObject> overlappingVillagers = new();
     private void OnTriggerEnter(Collider other)
     {
+        //if (isCollectable && other.transform == LevelController.player) Destroy(gameObject);
+
         if (GameController.Instance.villagerMask.Contains(other.gameObject.layer)) // sort this out, if villager, if prioritise player, if knight
             overlappingVillagers.Add(other.gameObject);
 

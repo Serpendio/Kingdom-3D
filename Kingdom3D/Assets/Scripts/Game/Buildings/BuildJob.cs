@@ -1,7 +1,11 @@
 using System.Linq;
 using UnityEngine;
 
-public interface IBuilding { public void PassLinkedJob(BuildJob job); }
+public interface IBuilding 
+{
+    // allows subscribing to onBuildIncrement and Complete
+    public void PassLinkedJob(BuildJob job); 
+}
 
 public class BuildJob : IHeapItem<BuildJob>
 {

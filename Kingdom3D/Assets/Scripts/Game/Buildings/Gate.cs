@@ -47,11 +47,13 @@ public class Gate : MonoBehaviour, IBuilding
     public ConnectionInfo connectionInfo;
     public bool isDestroyed, isSideways;
     public WallLevels level;
-    [SerializeField] int health;
+    [SerializeField, Min(1)] int maxHealth;
+    int health;
 
     public void Start()
     {
         colliderComp = GetComponent<Collider>();
+        health = maxHealth;
 
         if (!builtViaJob) FinishBuild();
 
@@ -141,6 +143,10 @@ public class Gate : MonoBehaviour, IBuilding
     public void Damage(int damage)
     {
         health -= damage;
+
+        // update damage on animator
+        // walls.animator.SetFloat("damage", health / (float)maxHealth);
+
         if (health <= 0)
         {
             DestroyWalls();
@@ -149,7 +155,7 @@ public class Gate : MonoBehaviour, IBuilding
 
     private void DestroyWalls()
     {
-
+        // disable colliders, update astar
     }
 
     bool builtViaJob = false;

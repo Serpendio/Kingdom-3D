@@ -18,6 +18,7 @@ public class Archer : SubjectBase
     bool isMoving;
     Transform bow;
     Bow bowScript;
+    public bool calledToServe = false;
 
     protected override void Awake()
     {

@@ -19,8 +19,10 @@ public class SubjectBase : CreatureBase
 
     protected Rigidbody rig;
     protected float stateTime;
-    public Transform target;
+    public List<Transform> waypoints;
 
+    public Vector3 TargetPos { get; private set; }
+    protected List<Vector3> targets;
     public Roles role;
     int coins;
     protected int maxCoins;
@@ -67,5 +69,13 @@ public class SubjectBase : CreatureBase
         }
 
         Destroy(gameObject);
+    }
+
+    public void MoveTo(Vector3 pos, bool isOriginValid = false)
+    {
+        if (!isOriginValid && pos == Vector3.zero)
+            return;
+
+
     }
 }

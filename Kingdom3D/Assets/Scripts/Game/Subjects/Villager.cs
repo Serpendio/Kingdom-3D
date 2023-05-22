@@ -27,18 +27,18 @@ public class Villager : SubjectBase
 
         if (reobserveTime <= 0)
         {
-            target = LevelController.Instance.tools.Cast<Transform>() // gets all children as enumerable as referenced https://answers.unity.com/questions/1282940/get-all-child-transforms-in-target.html
+            MoveTo(LevelController.Instance.tools.Cast<Transform>() // gets all children as enumerable as referenced https://answers.unity.com/questions/1282940/get-all-child-transforms-in-target.html
                 .OrderBy(c => (c.transform.position - transform.position).sqrMagnitude) // order by dist sqrd which is faster due to no square root
-                .FirstOrDefault();
+                .FirstOrDefault().position);
             
-            if (target == null)
+            if (TargetPos == null)
             {
                 transform.DORotate((Quaternion.Euler(Vector3.up * Random.Range(0f, 360f)) * transform.rotation).eulerAngles, .5f);
                 isMoving = Random.Range(0, 3) == 0; // 33% chance every ~3s to move for ~3s
             }
             else
             {
-                float angle = (Quaternion.FromToRotation(transform.forward, target.position - transform.position) * transform.rotation).eulerAngles.y;
+                float angle = (Quaternion.FromToRotation(transform.forward, TargetPos - transform.position) * transform.rotation).eulerAngles.y;
                 transform.DORotate(angle * Vector3.up, .3f);
                 isMoving = true;
             }

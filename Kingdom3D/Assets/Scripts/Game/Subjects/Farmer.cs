@@ -7,6 +7,9 @@ public class Farmer : SubjectBase
 {
     Field linkedField;
     Farm linkedFarm;
+    bool isfarming;
+    float checkTime = 0f;
+    Vector3 target;
 
     protected override void Awake()
     {
@@ -14,6 +17,19 @@ public class Farmer : SubjectBase
 
         SafetyCheck.OnKingdomSafe += StartFarming;
         TimeTracker.AddActionAtTime(TimeTracker.sunset, EndFarming);
+    }
+
+    private void Update()
+    {
+        checkTime += Time.deltaTime;
+        if (checkTime >= 3f)
+        {
+            checkTime = 0f;
+            if (linkedFarm == null)
+            {
+                FindFarm();
+            }
+        }
     }
 
     public void StartFarming()
@@ -36,6 +52,20 @@ public class Farmer : SubjectBase
     private void EndFarming()
     {
         // move to town center or sheltered farm
+        if (linkedFarm == null || linkedFarm.level == 0)
+        {
+            target = LevelController.zones[Random.Range(0, LevelController.numCentralZones)].GetRandomEmptyPoint();
+        }
+        else
+        {
+            target = linkedFarm.transform.position;
+        }
+    }
+
+    public void CancelFarm()
+    {
+        linkedFarm = null;
+        EndFarming();
     }
 
     void FindFarm()

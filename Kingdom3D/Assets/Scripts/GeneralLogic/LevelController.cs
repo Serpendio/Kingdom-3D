@@ -25,6 +25,7 @@ public class LevelController : MonoBehaviour
 
     public static int numCentralZones;
     [SerializeField, Min(100)] public float islandRadius = 400f;
+    public static Camera mainCam;
 
     private void Awake()
     {
@@ -39,6 +40,7 @@ public class LevelController : MonoBehaviour
         }
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        mainCam = Camera.main;
     }
 
     public void UpdatePortalTimes() // called at start, and when a wall is destroyed or created (/ upgraded?)

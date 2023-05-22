@@ -30,9 +30,8 @@ public class GreedTracker
         switch (greedType)
         {
             case GreedType.Greedling:
-                if (portalGreedlings.Remove(instance))
-                    return;
-                bredGreedlings.Remove(instance);
+                if (!portalGreedlings.Remove(instance))
+                    bredGreedlings.Remove(instance);
                 break;
             case GreedType.Floater:
                 floaters.Remove(instance);
@@ -44,7 +43,7 @@ public class GreedTracker
                 break;
         }
 
-        if (bredGreedlings.Count + floaters.Count + breeders.Count == 0)
+        if (portalGreedlings.Count + bredGreedlings.Count + floaters.Count + breeders.Count == 0)
         {
             allKilled = true;
             if (TimeTracker.CurrentTime > TimeTracker.dawn)

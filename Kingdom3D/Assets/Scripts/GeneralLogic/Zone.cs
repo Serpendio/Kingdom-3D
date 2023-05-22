@@ -298,4 +298,19 @@ public class Zone
         foreach (var n in neighbourInfos.Where(g => g.direction == Directions.Right)) n.gate.RebuildWalls(true);
         foreach (var n in neighbourInfos.Where(g => g.direction == Directions.Left)) n.gate.RebuildWalls(true);
     }
+
+    public Vector3 GetRandomEmptyPoint(Vector2 spaceRequired = new())
+    {
+        const int maxIterations = 50;
+        Vector3 actualSpaceRequired = new Vector3(spaceRequired.x < 1 ? 1 : spaceRequired.x, 0, spaceRequired.x < 1 ? 1 : spaceRequired.x) / 2f;
+        for (int i = 0; i < maxIterations; i++)
+        {
+            var pointToCheck = PolarMaths.P2V3(new Polar(Random.Range(bottomRight.r, topLeft.r), Random.Range(bottomRight.Theta, topLeft.Theta)));
+
+            // should check if something is there, add param spaceRequired for building check
+            if (!Physics.CheckBox(pointToCheck, actualSpaceRequired, Quaternion.identity, GameController.Instance.obstacleMask))
+                return pointToCheck;
+        }
+        return Vector3.zero;
+    }
 }
