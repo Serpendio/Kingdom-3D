@@ -42,7 +42,10 @@ public class PlayerController : MonoBehaviour
 
     public void Sprint(InputAction.CallbackContext context)
     {
-        isSprinting = context.performed;
+        if (context.performed)
+            isSprinting = true;
+        else if (context.canceled)
+            isSprinting = false;
     }
 
     public bool isPaying;
