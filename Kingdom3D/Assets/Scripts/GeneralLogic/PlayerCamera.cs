@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Camera : MonoBehaviour
+public class PlayerCamera : MonoBehaviour
 {
     [SerializeField] float sensitivityY;
     [SerializeField] float sensitivityX;
