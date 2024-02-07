@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:VisualElement name="buttonContainer" style="display: flex;">
+        <ui:VisualElement style="flex-direction: row; align-items: flex-start; flex-wrap: wrap; display: flex;">
+            <ButtonThatCanBeDisabled name="btnModifyNodes" text="Modify Nodes" style="flex-basis: 0; flex-grow: 100; min-width: 115px;" />
+            <ButtonThatCanBeDisabled name="btnModifyConnections" text="Modify Connections" style="flex-grow: 100; flex-basis: 0; min-width: 115px;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-direction: row; align-items: flex-start; flex-wrap: wrap; display: flex;">
+            <ButtonThatCanBeDisabled name="btnCreateNodes" text="Create Nodes" style="flex-grow: 100; flex-basis: 0; min-width: 90px;" />
+            <ButtonThatCanBeDisabled name="btnRemoveNodes" text="Remove Nodes" style="flex-basis: 0; flex-grow: 100; min-width: 90px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="toolContainer" style="display: none;">
+        <ButtonThatCanBeDisabled name="btnCancel" text="Cancel" />
+        <ui:Toggle label="Toggle" name="toggle" />
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="descriptionLabel" style="-unity-text-align: upper-center;" />
+    </ui:VisualElement>
+</ui:UXML>
